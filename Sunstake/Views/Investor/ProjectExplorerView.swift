@@ -114,6 +114,7 @@ struct ProjectExplorerView: View {
                     }
                 }
             }
+            .changeRoleButton()
             .navigationTitle("Proyectos")
             .searchable(text: $searchText, prompt: "Ciudad o estado")
         }

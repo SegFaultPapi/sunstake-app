@@ -135,6 +135,10 @@ final class AppState {
         isLoggedIn = true
     }
 
+    func changeRole() {
+        userRole = .none
+    }
+
     func logout() {
         isLoggedIn = false
         userRole = .none

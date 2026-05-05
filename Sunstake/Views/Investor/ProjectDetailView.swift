@@ -138,6 +138,7 @@ struct ProjectDetailView: View {
             }
             .padding(24)
         }
+        .changeRoleButton()
         .navigationTitle("\(project.ciudad)")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showPurchase) {

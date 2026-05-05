@@ -161,6 +161,7 @@ struct QuotaCalculatorView: View {
                 }
                 .padding(24)
             }
+            .changeRoleButton()
             .navigationTitle("Sunstake")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showResult) {

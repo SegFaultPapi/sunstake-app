@@ -168,6 +168,7 @@ struct QuotaResultView: View {
             }
             .padding(24)
         }
+        .changeRoleButton()
         .navigationTitle("Tu cuota solar")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showSummary) {

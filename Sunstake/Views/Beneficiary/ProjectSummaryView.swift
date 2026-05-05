@@ -88,6 +88,7 @@ struct ProjectSummaryView: View {
             }
             .padding(24)
         }
+        .changeRoleButton()
         .navigationTitle("Resumen del proyecto")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showBiometric) {

@@ -150,6 +150,13 @@ struct AccountView: View {
                     Toggle("Rendimientos recibidos", isOn: .constant(true))
                 }
                 Section {
+                    Button {
+                        appState.changeRole()
+                    } label: {
+                        Label("Cambiar rol", systemImage: "arrow.left.arrow.right")
+                    }
+                }
+                Section {
                     Button(role: .destructive) {
                         appState.logout()
                     } label: {
@@ -157,6 +164,7 @@ struct AccountView: View {
                     }
                 }
             }
+            .changeRoleButton()
             .navigationTitle("Mi cuenta")
         }
     }

@@ -1,5 +1,41 @@
 import SwiftUI
 
+// MARK: - Change-role toolbar button
+
+private struct ChangeRoleModifier: ViewModifier {
+    @Environment(AppState.self) var appState
+
+    private var roleColor: Color {
+        switch appState.userRole {
+        case .investor:    return .chain500
+        case .beneficiary: return .secondary500
+        case .none:        return .textSecondary
+        }
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        appState.changeRole()
+                    } label: {
+                        Image(systemName: "chevron.left.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(roleColor)
+                    }
+                    .accessibilityLabel("Cambiar rol")
+                }
+            }
+    }
+}
+
+extension View {
+    func changeRoleButton() -> some View {
+        modifier(ChangeRoleModifier())
+    }
+}
+
 // MARK: - Copyable transaction hash
 
 struct CopyableHashView: View {

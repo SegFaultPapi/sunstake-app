@@ -108,6 +108,7 @@ struct BeneficiaryDashboardView: View {
                 }
                 .padding(24)
             }
+            .changeRoleButton()
             .navigationTitle("Mi panel solar")
             .refreshable {
                 // In real app: refresh on-chain data

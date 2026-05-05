@@ -117,6 +117,7 @@ struct YieldHistoryView: View {
                 }
                 .padding(24)
             }
+            .changeRoleButton()
             .navigationTitle("Mis rendimientos")
         }
     }
