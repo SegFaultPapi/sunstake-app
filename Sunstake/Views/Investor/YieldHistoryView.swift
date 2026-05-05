@@ -25,7 +25,7 @@ struct YieldHistoryView: View {
                             Text("Rendimiento total acumulado")
                                 .font(.dsSubhead)
                                 .foregroundStyle(.textSecondary)
-                            Text("$\(String(format: "%.2f", totalUSDC)) USDC")
+                            Text("$\(String(format: "%.2f", totalUSDC)) USD")
                                 .font(.dsDisplay)
                                 .foregroundStyle(.chain500)
                             Text("≈ $\(Int(totalMXN)) MXN")
@@ -47,7 +47,7 @@ struct YieldHistoryView: View {
                             Divider().frame(height: 30)
                             YieldSummaryChip(
                                 label: "Total invertido",
-                                value: "$\(String(format: "%.2f", appState.totalInvestedUSDC)) USDC"
+                                value: "$\(String(format: "%.2f", appState.totalInvestedUSDC)) USD"
                             )
                         }
                     }
@@ -72,7 +72,7 @@ struct YieldHistoryView: View {
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text("\(project.ciudad), \(project.estado)")
                                                 .font(.dsCaption.weight(.semibold))
-                                            Text("\(project.mesesRestantes) m · \(String(format: "%.1f", project.rendimientoAnualPct))% anual · invertiste $\(Int(invertido))")
+                                            Text("\(project.mesesRestantes) m · \(String(format: "%.1f", project.rendimientoAnualPct))% anual · invertiste $\(String(format: "%.2f", invertido)) USD")
                                                 .font(.dsCaption2)
                                                 .foregroundStyle(.textSecondary)
                                         }
@@ -126,7 +126,7 @@ struct YieldHistoryView: View {
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "info.circle.fill")
                                 .foregroundStyle(.chain500)
-                            Text("Cada rendimiento está verificado en blockchain. Toca el código de verificación para confirmarlo tú mismo en Basescan.")
+                            Text("Cada rendimiento está verificado en la red de pagos. Toca el código de verificación para confirmarlo tú mismo en los detalles de la transacción.")
                                 .font(.caption2)
                                 .foregroundStyle(.textSecondary)
                         }
@@ -226,7 +226,7 @@ struct YieldEntryRow: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text("+$\(String(format: "%.2f", entry.montoUSDC)) USDC")
+                    Text("+$\(String(format: "%.2f", entry.montoUSDC)) USD")
                         .font(.dsCaption.weight(.bold))
                         .foregroundStyle(.success)
                     Text("≈ $\(Int(entry.montoMXN)) MXN")
@@ -247,11 +247,11 @@ struct YieldEntryRow: View {
                         UIApplication.shared.open(url)
                     }
                 } label: {
-                    Text("\(entry.txHashCorto) · Basescan ↗")
+                    Text("\(entry.txHashCorto) · Ver detalles ↗")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(.chain500.opacity(0.75))
                 }
-                .accessibilityLabel("Ver transacción \(entry.txHashCorto) en Basescan")
+                .accessibilityLabel("Ver detalles de la transacción \(entry.txHashCorto)")
                 Spacer()
             }
             .padding(.bottom, 10)

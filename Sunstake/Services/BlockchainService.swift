@@ -60,6 +60,10 @@ final class BlockchainService: @unchecked Sendable {
     private static let selectorGetProjects = "dcc60128"
     private static let selectorGetProjectMetadata = "1af9fd17"
     private static let selectorPorcentajeFinanciadoBps = "c78ccca5"
+    private static let selectorProjectToBeneficiario = "b5f60be7"
+    /// ERC-1155 balanceOf(address,uint256) — TOKEN_ID siempre es 1 en FractionToken
+    private static let selectorBalanceOf = "00fdd58e"
+    private static let fractionTokenId: UInt64 = 1
 
     /// keccak256("ProjectCreated(address,address,address,address,string,string,uint256,uint256,uint256)")
     private static let projectCreatedTopic0 =
@@ -129,6 +133,68 @@ final class BlockchainService: @unchecked Sendable {
         }
     }
 
+    /// Busca en `SunstakeFactory.getProjects()` el proyecto cuyo `beneficiario` coincide con `walletAddress`.
+    /// Devuelve `nil` si el usuario no tiene ningun proyecto publicado.
+    func fetchActiveProjectForBeneficiary(walletAddress: String) async throws -> SolarProject? {
+        try await ensureBaseSepolia()
+        let factory = try requireFactory()
+        let canonicalFactory = Self.canonicalEVMAddress(factory)
+        let rawList = try await ethCallHexResult(to: canonicalFactory, data: "0x" + Self.selectorGetProjects)
+        let solarAddrs = EVMABI.decodeAddressArray(rawList)
+        guard !solarAddrs.isEmpty else { return nil }
+
+        let normalizedWallet = walletAddress.lowercased()
+
+        for rawAddr in solarAddrs {
+            let solarAddr = Self.canonicalEVMAddress(rawAddr)
+            let calldata = EVMABI.encodeCall(
+                selector: Self.selectorProjectToBeneficiario,
+                params: [.address(solarAddr)]
+            )
+            let benefRaw = try await ethCallHexResult(to: canonicalFactory, data: calldata)
+            let benefAddr = EVMABI.decodeAddress(fromWord: benefRaw).lowercased()
+            if benefAddr == normalizedWallet {
+                return try await explorerRow(forSolar: solarAddr)
+            }
+        }
+        return nil
+    }
+
+    /// Para cada proyecto en la factory, consulta el balance ERC-1155 de `walletAddress`.
+    /// Devuelve los proyectos donde el balance es > 0, junto con el monto invertido en USD.
+    func fetchInvestedProjectsForWallet(walletAddress: String) async throws -> [(project: SolarProject, investedUSD: Double)] {
+        try await ensureBaseSepolia()
+        let factory = try requireFactory()
+        let canonicalFactory = Self.canonicalEVMAddress(factory)
+        let rawList = try await ethCallHexResult(to: canonicalFactory, data: "0x" + Self.selectorGetProjects)
+        let solarAddrs = EVMABI.decodeAddressArray(rawList)
+        guard !solarAddrs.isEmpty else { return [] }
+
+        var results: [(project: SolarProject, investedUSD: Double)] = []
+
+        try await withThrowingTaskGroup(of: (SolarProject, Double)?.self) { group in
+            for rawAddr in solarAddrs {
+                let solarAddr = Self.canonicalEVMAddress(rawAddr)
+                group.addTask {
+                    let calldata = EVMABI.encodeCall(
+                        selector: Self.selectorBalanceOf,
+                        params: [.address(walletAddress), .uint256(Self.fractionTokenId)]
+                    )
+                    let balRaw = try await self.ethCallHexResult(to: solarAddr, data: calldata)
+                    let balanceMicro = EVMABI.decodeUInt256(balRaw)
+                    guard balanceMicro > 0 else { return nil }
+                    guard let project = try await self.explorerRow(forSolar: solarAddr) else { return nil }
+                    let investedUSD = Double(balanceMicro) / Self.usdcScale
+                    return (project, investedUSD)
+                }
+            }
+            for try await pair in group {
+                if let pair { results.append(pair) }
+            }
+        }
+        return results
+    }
+
     private func ethCallHexResult(to: String, data: String) async throws -> String {
         if let value = try await ethCall(url: config.rpcURL, to: to, data: data), !value.isEmpty {
             return value
@@ -184,7 +250,8 @@ final class BlockchainService: @unchecked Sendable {
             contractAddress: solar,
             paymentSplitterAddress: Self.canonicalEVMAddress(meta.paymentSplitterLowercasedAddress),
             status: status,
-            beneficiario: beneficiarioLabel
+            beneficiario: beneficiarioLabel,
+            cuotaMensualUSD: Double(meta.cuotaMensualMicro) / Self.usdcScale
         )
     }
 

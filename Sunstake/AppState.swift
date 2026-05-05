@@ -260,6 +260,68 @@ final class AppState {
         transactionState = .idle
     }
 
+    /// Restaura `investedProjects` e `investments` desde la chain para el inversor que acaba de iniciar sesion.
+    func restoreInvestorStateFromChain() async {
+        guard !walletAddress.isEmpty else { return }
+        do {
+            let pairs = try await blockchainService.fetchInvestedProjectsForWallet(walletAddress: walletAddress)
+            guard !pairs.isEmpty else { return }
+            for (project, investedUSD) in pairs {
+                if !investedProjects.contains(where: { $0.id == project.id }) {
+                    investedProjects.append(project)
+                }
+                if !investments.contains(where: { $0.projectId == project.id }) {
+                    investments.append(Investment(
+                        id: UUID(),
+                        projectId: project.id,
+                        montoUSDC: investedUSD,
+                        fecha: Date(),
+                        txHash: "0x\(project.contractAddress.dropFirst(2).prefix(62))00"
+                    ))
+                }
+            }
+        } catch {
+            #if DEBUG
+            print("[Sunstake] No se pudo restaurar inversiones: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
+    /// Restaura `activeProject` y `quotaResult` desde la chain para el usuario que acaba de iniciar sesion.
+    /// Si no hay proyecto publicado, no hace nada.
+    func restoreSessionFromChain() async {
+        guard !walletAddress.isEmpty else { return }
+        do {
+            guard let project = try await blockchainService.fetchActiveProjectForBeneficiary(walletAddress: walletAddress) else {
+                return
+            }
+            activeProject = project
+            let plazo = project.plazoTotalMeses
+            let pagados = project.mesesPagados
+            ownershipPct = plazo > 0 ? min(1.0, Double(pagados) / Double(plazo)) : 0
+
+            // Reconstruye quotaResult para que payMonthlyQuota() tenga la cuota correcta.
+            let cuotaMXN = project.cuotaMensualUSD * 17.5
+            let consumoKWh = cuotaMXN / (0.72 * 3.75)
+            quotaResult = QuotaResult(
+                cuotaMXN: cuotaMXN,
+                consumoKWh: consumoKWh,
+                horasSol: 5.2,
+                tamanoPanel: consumoKWh > 300 ? "2.5 kW" : "2 kW",
+                coberturaPct: 0,
+                plazoMeses: plazo,
+                rendimientoInversorPct: project.rendimientoAnualPct,
+                confianza: .media,
+                explicacion: "Datos restaurados desde tu contrato en la red de pagos.",
+                ubicacion: "\(project.ciudad), \(project.estado)"
+            )
+        } catch {
+            #if DEBUG
+            print("[Sunstake] No se pudo restaurar el proyecto activo: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
     // MARK: - Auth actions
 
     func sendAccessCode(email: String) async throws {
@@ -278,6 +340,8 @@ final class AppState {
         print("✅ [Sunstake] Login OK — email: \(session.email) | wallet: \(wallet.address) | provider: \(wallet.providerName)")
         #endif
         await refreshWalletBalance()
+        await restoreSessionFromChain()
+        await restoreInvestorStateFromChain()
     }
 
     func register(name: String, email: String, otp: String) async throws {
@@ -292,6 +356,8 @@ final class AppState {
         print("✅ [Sunstake] Registro OK — email: \(session.email) | wallet: \(wallet.address) | provider: \(wallet.providerName)")
         #endif
         await refreshWalletBalance()
+        await restoreSessionFromChain()
+        await restoreInvestorStateFromChain()
     }
 
     func changeRole() {

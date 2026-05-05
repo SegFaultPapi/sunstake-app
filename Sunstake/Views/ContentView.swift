@@ -23,6 +23,7 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.35), value: appState.hasCompletedOnboarding)
         .animation(.easeInOut(duration: 0.35), value: appState.isLoggedIn)
         .animation(.easeInOut(duration: 0.25), value: appState.userRole == .none)
+        .statusToastOverlay()
     }
 }
 
@@ -144,7 +145,7 @@ struct AccountView: View {
                             }
                             .accessibilityLabel("No se pudo leer el saldo. Toca para reintentar.")
                         } else {
-                            Text(String(format: "$%.2f USDC", appState.walletBalanceUSDC))
+                            Text(String(format: "$%.2f USD", appState.walletBalanceUSDC))
                                 .font(.dsCaption.weight(.semibold))
                                 .foregroundStyle(.chain500)
                         }

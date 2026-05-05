@@ -1,5 +1,153 @@
 import SwiftUI
 
+// MARK: - Status toast banner
+
+enum ToastKind { case success, error, info }
+
+struct StatusToast: Equatable {
+    let kind: ToastKind
+    let title: String
+    let subtitle: String?
+    let txHash: String?
+
+    static func == (lhs: StatusToast, rhs: StatusToast) -> Bool {
+        lhs.title == rhs.title && lhs.subtitle == rhs.subtitle
+    }
+}
+
+private struct ToastBannerView: View {
+    let toast: StatusToast
+    let onDismiss: () -> Void
+
+    private var iconName: String {
+        switch toast.kind {
+        case .success: return "checkmark.circle.fill"
+        case .error:   return "xmark.circle.fill"
+        case .info:    return "info.circle.fill"
+        }
+    }
+
+    private var iconColor: Color {
+        switch toast.kind {
+        case .success: return .success
+        case .error:   return .danger
+        case .info:    return .chain500
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: iconName)
+                .font(.title3)
+                .foregroundStyle(iconColor)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(toast.title)
+                    .font(.dsCaption.weight(.semibold))
+                    .foregroundStyle(.textPrimary)
+                if let sub = toast.subtitle {
+                    Text(sub)
+                        .font(.dsCaption2)
+                        .foregroundStyle(.textSecondary)
+                        .lineLimit(2)
+                }
+            }
+            Spacer()
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.textSecondary)
+            }
+            .accessibilityLabel("Cerrar notificación")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.surface.shadow(.drop(radius: 8, y: 3)))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(iconColor.opacity(0.2), lineWidth: 1))
+        .padding(.horizontal, 16)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct ToastOverlayModifier: ViewModifier {
+    @Environment(AppState.self) var appState
+    @State private var currentToast: StatusToast?
+    @State private var isVisible = false
+    @State private var dismissTask: Task<Void, Never>?
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .top) {
+                if isVisible, let toast = currentToast {
+                    ToastBannerView(toast: toast, onDismiss: dismiss)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .padding(.top, 8)
+                        .zIndex(999)
+                }
+            }
+            .onChange(of: appState.transactionState) { _, newState in
+                handleStateChange(newState)
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isVisible)
+    }
+
+    private func handleStateChange(_ state: TransactionState) {
+        switch state {
+        case .purchaseSuccess(let hash):
+            show(StatusToast(
+                kind: .success,
+                title: "¡Inversión confirmada!",
+                subtitle: "Tu participación está registrada en la red de pagos.",
+                txHash: hash
+            ), autoDismissAfter: 4)
+
+        case .success(let hash):
+            show(StatusToast(
+                kind: .success,
+                title: "¡Proyecto publicado!",
+                subtitle: "Ya es visible para todos los inversores.",
+                txHash: hash
+            ), autoDismissAfter: 4)
+
+        case .error(let msg):
+            show(StatusToast(
+                kind: .error,
+                title: "Error en la transacción",
+                subtitle: msg,
+                txHash: nil
+            ), autoDismissAfter: 6)
+
+        default:
+            break
+        }
+    }
+
+    private func show(_ toast: StatusToast, autoDismissAfter seconds: Double) {
+        dismissTask?.cancel()
+        currentToast = toast
+        withAnimation { isVisible = true }
+        UINotificationFeedbackGenerator().notificationOccurred(toast.kind == .error ? .error : .success)
+
+        dismissTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            await MainActor.run { dismiss() }
+        }
+    }
+
+    private func dismiss() {
+        dismissTask?.cancel()
+        withAnimation { isVisible = false }
+    }
+}
+
+extension View {
+    func statusToastOverlay() -> some View {
+        modifier(ToastOverlayModifier())
+    }
+}
+
 // MARK: - Change-role toolbar button
 
 private struct ChangeRoleModifier: ViewModifier {

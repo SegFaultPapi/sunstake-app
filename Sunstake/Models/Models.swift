@@ -125,6 +125,8 @@ struct SolarProject: Identifiable {
     let paymentSplitterAddress: String
     let status: ProjectStatus
     let beneficiario: String
+    /// Cuota mensual real del contrato en USD (0 en proyectos mock).
+    var cuotaMensualUSD: Double = 0
 
     var mesesPagados: Int { plazoTotalMeses - mesesRestantes }
     var rendimientoMensualPct: Double { rendimientoAnualPct / 12 / 100 }
