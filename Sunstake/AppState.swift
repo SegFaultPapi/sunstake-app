@@ -4,6 +4,12 @@ import Observation
 
 @Observable
 final class AppState {
+    // MARK: - Auth state
+    var isLoggedIn: Bool = false
+    var userName: String = ""
+    var userEmail: String = ""
+
+    // MARK: - Navigation state
     var userRole: UserRole = .none
     var hasCompletedOnboarding: Bool = false
 
@@ -83,5 +89,25 @@ final class AppState {
 
     func resetTransaction() {
         transactionState = .idle
+    }
+
+    // MARK: - Auth actions
+
+    func login(email: String, name: String) {
+        userEmail = email
+        userName = name.isEmpty ? email.components(separatedBy: "@").first ?? "Usuario" : name
+        isLoggedIn = true
+    }
+
+    func register(name: String, email: String) {
+        userName = name
+        userEmail = email
+        isLoggedIn = true
+    }
+
+    func logout() {
+        isLoggedIn = false
+        userRole = .none
+        // hasCompletedOnboarding se mantiene: el onboarding solo se muestra una vez
     }
 }

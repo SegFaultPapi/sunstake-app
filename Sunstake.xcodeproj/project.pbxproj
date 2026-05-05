@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		41AF83902FA9B661005F9707 /* Sunstake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sunstake.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41AF83902FA9B661005F9707 /* Sunstake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sunstake.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		41AF83922FA9B661005F9707 /* Sunstake */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Sunstake";
+			path = Sunstake;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -63,10 +63,10 @@
 			fileSystemSynchronizedGroups = (
 				41AF83922FA9B661005F9707 /* Sunstake */,
 			);
-			name = "Sunstake";
+			name = Sunstake;
 			packageProductDependencies = (
 			);
-			productName = "Sunstake";
+			productName = Sunstake;
 			productReference = 41AF83902FA9B661005F9707 /* Sunstake.app */;
 			productType = "com.apple.product-type.application";
 		};

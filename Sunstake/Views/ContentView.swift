@@ -7,6 +7,8 @@ struct ContentView: View {
         Group {
             if !appState.hasCompletedOnboarding {
                 OnboardingView()
+            } else if !appState.isLoggedIn {
+                AuthView()
             } else {
                 switch appState.userRole {
                 case .beneficiary:
@@ -18,8 +20,9 @@ struct ContentView: View {
                 }
             }
         }
-        .animation(.easeInOut, value: appState.hasCompletedOnboarding)
-        .animation(.easeInOut, value: appState.userRole == .none)
+        .animation(.easeInOut(duration: 0.35), value: appState.hasCompletedOnboarding)
+        .animation(.easeInOut(duration: 0.35), value: appState.isLoggedIn)
+        .animation(.easeInOut(duration: 0.25), value: appState.userRole == .none)
     }
 }
 
@@ -88,6 +91,21 @@ struct AccountView: View {
             List {
                 Section("Tu cuenta de pagos") {
                     HStack {
+                        Label("Usuario", systemImage: "person.circle")
+                        Spacer()
+                        Text(appState.userName.isEmpty ? "—" : appState.userName)
+                            .font(.dsCaption)
+                            .foregroundStyle(.textSecondary)
+                    }
+                    HStack {
+                        Label("Correo", systemImage: "envelope")
+                        Spacer()
+                        Text(appState.userEmail.isEmpty ? "—" : appState.userEmail)
+                            .font(.dsCaption)
+                            .foregroundStyle(.textSecondary)
+                            .lineLimit(1)
+                    }
+                    HStack {
                         Label("Dirección wallet", systemImage: "wallet.pass")
                         Spacer()
                         Text("0x71a3...f9c2")
@@ -113,8 +131,7 @@ struct AccountView: View {
                 }
                 Section {
                     Button(role: .destructive) {
-                        appState.userRole = .none
-                        appState.hasCompletedOnboarding = false
+                        appState.logout()
                     } label: {
                         Label("Cerrar sesión", systemImage: "arrow.right.square")
                     }
