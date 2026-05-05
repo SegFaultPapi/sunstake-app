@@ -28,12 +28,11 @@ struct BeneficiaryFinancingView: View {
 private struct FinancingDashboardContent: View {
     let project: SolarProject
 
-    // Inversores simulados para el demo
-    private let mockInvestors: [(label: String, monto: Double, pct: Double)] = [
-        ("Inversor A", 500, 22.2),
-        ("Inversor B", 750, 33.3),
-        ("Inversor C", 505, 22.4)
-    ]
+    // Aun no tenemos un indexer onchain que liste compradores por contrato,
+    // asi que partimos vacio y mostramos un empty state honesto en lugar
+    // de inversores ficticios. La barra de progreso si refleja el porcentaje real
+    // del proyecto.
+    private let investors: [(label: String, monto: Double, pct: Double)] = []
 
     private var montoRecaudado: Double {
         project.montoTotalUSD * project.porcentajeFinanciado
@@ -66,15 +65,15 @@ private struct FinancingDashboardContent: View {
                     FinancingMetric(
                         icon: "person.2.fill",
                         iconColor: .secondary500,
-                        value: "\(mockInvestors.count)",
+                        value: investors.isEmpty ? "—" : "\(investors.count)",
                         label: "inversores"
                     )
                     Divider().frame(height: 36)
                     FinancingMetric(
                         icon: "calendar",
                         iconColor: .textSecondary,
-                        value: "21",
-                        label: "días publicado"
+                        value: project.status == .open ? "Abierto" : "Cerrado",
+                        label: "estado"
                     )
                 }
                 .padding(.vertical, 14)
@@ -138,11 +137,11 @@ private struct FinancingDashboardContent: View {
                     Text("Inversores en tu proyecto")
                         .font(.dsHeading)
 
-                    if mockInvestors.isEmpty {
+                    if investors.isEmpty {
                         HStack(spacing: 10) {
                             Image(systemName: "clock")
                                 .foregroundStyle(.textSecondary)
-                            Text("Aún no hay inversores. Los proyectos suelen financiarse en 7–14 días.")
+                            Text("Aún no hay inversores registrados. Los proyectos suelen financiarse en 7–14 días.")
                                 .font(.dsCaption)
                                 .foregroundStyle(.textSecondary)
                         }
@@ -151,13 +150,13 @@ private struct FinancingDashboardContent: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     } else {
                         VStack(spacing: 0) {
-                            ForEach(Array(mockInvestors.enumerated()), id: \.offset) { index, investor in
+                            ForEach(Array(investors.enumerated()), id: \.offset) { index, investor in
                                 InvestorRow(
                                     label: investor.label,
                                     monto: investor.monto,
                                     pct: investor.pct
                                 )
-                                if index < mockInvestors.count - 1 {
+                                if index < investors.count - 1 {
                                     Divider().padding(.leading, 42)
                                 }
                             }

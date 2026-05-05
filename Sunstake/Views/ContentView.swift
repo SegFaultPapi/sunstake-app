@@ -128,9 +128,26 @@ struct AccountView: View {
                     HStack {
                         Label("Saldo disponible", systemImage: "dollarsign.circle")
                         Spacer()
-                        Text(String(format: "$%.2f USD", appState.walletBalanceUSDC))
-                            .font(.dsCaption.weight(.semibold))
-                            .foregroundStyle(.chain500)
+                        if appState.isLoadingBalance {
+                            ProgressView()
+                                .controlSize(.mini)
+                        } else if appState.balanceError != nil {
+                            Button {
+                                Task { await appState.refreshWalletBalance() }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.clockwise")
+                                    Text("Reintentar")
+                                }
+                                .font(.dsCaption.weight(.semibold))
+                                .foregroundStyle(.warning)
+                            }
+                            .accessibilityLabel("No se pudo leer el saldo. Toca para reintentar.")
+                        } else {
+                            Text(String(format: "$%.2f USDC", appState.walletBalanceUSDC))
+                                .font(.dsCaption.weight(.semibold))
+                                .foregroundStyle(.chain500)
+                        }
                     }
                     HStack {
                         Label("Red activa", systemImage: "link")
@@ -166,6 +183,14 @@ struct AccountView: View {
             }
             .changeRoleButton()
             .navigationTitle("Mi cuenta")
+            .refreshable {
+                await appState.refreshWalletBalance()
+            }
+            .task {
+                if appState.walletBalanceUSDC == 0 && !appState.isLoadingBalance {
+                    await appState.refreshWalletBalance()
+                }
+            }
         }
     }
 

@@ -101,7 +101,7 @@ struct PurchaseFlowView: View {
                 ) {
                     showBiometric = false
                     dismiss()
-                    Task { await appState.purchaseTokens(montoUSD: amount) }
+                    Task { await appState.purchaseTokens(montoUSD: amount, project: project) }
                 }
             }
         }
@@ -177,9 +177,27 @@ struct PurchaseFlowView: View {
             .background(Color.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            Text("Tu balance actual: $124.50 USDC disponibles")
-                .font(.dsCaption)
-                .foregroundStyle(.textSecondary)
+            HStack(spacing: 6) {
+                if appState.isLoadingBalance {
+                    ProgressView()
+                        .controlSize(.mini)
+                    Text("Consultando tu saldo en blockchain…")
+                        .font(.dsCaption)
+                        .foregroundStyle(.textSecondary)
+                } else if appState.balanceError != nil {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.warning)
+                    Text("No pudimos leer tu saldo on-chain. Vuelve a intentarlo.")
+                        .font(.dsCaption)
+                        .foregroundStyle(.textSecondary)
+                } else {
+                    Text("Tu saldo on-chain: $\(String(format: "%.2f", appState.walletBalanceUSDC)) USDC disponibles")
+                        .font(.dsCaption)
+                        .foregroundStyle(.textSecondary)
+                }
+            }
+            .accessibilityElement(children: .combine)
         }
     }
 

@@ -5,7 +5,7 @@ struct BeneficiaryDashboardView: View {
     @State private var showPaymentConfirm = false
     @State private var showPaymentLoader = false
 
-    private var project: SolarProject { SolarProject.mockProjects[0] }
+    private var project: SolarProject? { appState.activeProject }
 
     var body: some View {
         NavigationStack {
@@ -16,8 +16,8 @@ struct BeneficiaryDashboardView: View {
                     VStack(spacing: 16) {
                         OwnershipRingView(
                             percentage: appState.ownershipPct,
-                            mesesPagados: project.mesesPagados,
-                            plazoTotal: project.plazoTotalMeses
+                            mesesPagados: project?.mesesPagados ?? appState.paymentHistory.count,
+                            plazoTotal: project?.plazoTotalMeses ?? (appState.quotaResult?.plazoMeses ?? 36)
                         )
 
                         // Key stats row
@@ -25,13 +25,13 @@ struct BeneficiaryDashboardView: View {
                             StatChip(
                                 icon: "calendar",
                                 label: "Pagados",
-                                value: "\(project.mesesPagados)/\(project.plazoTotalMeses) meses"
+                                value: "\(project?.mesesPagados ?? appState.paymentHistory.count)/\(project?.plazoTotalMeses ?? (appState.quotaResult?.plazoMeses ?? 36)) meses"
                             )
                             Divider().frame(height: 32)
                             StatChip(
                                 icon: "arrow.down.circle",
                                 label: "Ahorro acumulado",
-                                value: "$\(Int(Double(project.mesesPagados) * (appState.quotaResult?.ahorroEstimadoMXN ?? 380))) MXN"
+                                value: "$\(Int(Double(project?.mesesPagados ?? appState.paymentHistory.count) * (appState.quotaResult?.ahorroEstimadoMXN ?? 0))) MXN"
                             )
                         }
                         .background(Color.surface)
@@ -81,9 +81,21 @@ struct BeneficiaryDashboardView: View {
                             .foregroundStyle(.secondary500)
 
                         HStack(spacing: 16) {
-                            PanelStat(icon: "location.fill", label: "Ubicación", value: "Guadalajara, JAL")
-                            PanelStat(icon: "bolt.fill", label: "Capacidad", value: "2 kW")
-                            PanelStat(icon: "leaf.fill", label: "CO₂ evitado", value: "1.2 ton/año")
+                            PanelStat(
+                                icon: "location.fill",
+                                label: "Ubicación",
+                                value: project.map { "\($0.ciudad), \($0.estado)" } ?? (appState.quotaResult?.ubicacion ?? "—")
+                            )
+                            PanelStat(
+                                icon: "bolt.fill",
+                                label: "Capacidad",
+                                value: appState.quotaResult?.tamanoPanel ?? "—"
+                            )
+                            PanelStat(
+                                icon: "leaf.fill",
+                                label: "CO₂ evitado",
+                                value: project.map { "\(String(format: "%.1f", $0.co2ToneladasAnio)) ton/año" } ?? "—"
+                            )
                         }
                     }
                     .padding(16)
@@ -91,18 +103,24 @@ struct BeneficiaryDashboardView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                     // Contract transparency — HCAI verifiable trust
-                    ContractInfoView(
-                        address: "0x7f3a4b2c9d1e8f5a0c3b6d9e2f1a4b7c0d3e6f9a",
-                        network: "Modo de prueba",
-                        explorerURL: "https://sepolia.basescan.org"
-                    )
+                    if let project {
+                        ContractInfoView(
+                            address: project.contractAddress,
+                            network: appState.networkConfig.networkLabel,
+                            explorerURL: appState.networkConfig.baseScanBaseURL.absoluteString
+                        )
+                    }
 
                     // Payment history
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Historial de pagos")
                             .font(.dsHeading)
-                        ForEach(appState.paymentHistory) { payment in
-                            PaymentRow(payment: payment)
+                        if appState.paymentHistory.isEmpty {
+                            EmptyPaymentHistoryRow()
+                        } else {
+                            ForEach(appState.paymentHistory) { payment in
+                                PaymentRow(payment: payment)
+                            }
                         }
                     }
                 }
@@ -133,6 +151,26 @@ struct BeneficiaryDashboardView: View {
                 )
             }
         }
+    }
+}
+
+private struct EmptyPaymentHistoryRow: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "clock")
+                .foregroundStyle(.textSecondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Aún no hay pagos registrados")
+                    .font(.dsCaption.weight(.semibold))
+                Text("Cuando hagas tu primer pago en blockchain, aparecerá aquí con su código de verificación.")
+                    .font(.dsCaption2)
+                    .foregroundStyle(.textSecondary)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

@@ -148,6 +148,19 @@ struct YieldEntry: Identifiable {
     var txHashCorto: String { "\(txHash.prefix(6))...\(txHash.suffix(4))" }
 }
 
+/// Inversion realizada por el usuario en un proyecto solar.
+/// Sirve para calcular rendimientos esperados a partir del monto realmente invertido,
+/// en lugar de usar valores fijos en la UI.
+struct Investment: Identifiable {
+    let id: UUID
+    let projectId: UUID
+    let montoUSDC: Double
+    let fecha: Date
+    let txHash: String
+
+    var txHashCorto: String { "\(txHash.prefix(6))...\(txHash.suffix(4))" }
+}
+
 // MARK: - Mock Data
 
 extension SolarProject {

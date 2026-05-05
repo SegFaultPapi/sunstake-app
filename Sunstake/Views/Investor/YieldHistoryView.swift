@@ -10,6 +10,10 @@ struct YieldHistoryView: View {
         appState.yieldHistory.reduce(0) { $0 + $1.montoMXN }
     }
 
+    private var hasNoActivity: Bool {
+        appState.investedProjects.isEmpty && appState.yieldHistory.isEmpty
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -42,8 +46,8 @@ struct YieldHistoryView: View {
                             )
                             Divider().frame(height: 30)
                             YieldSummaryChip(
-                                label: "Tasa real",
-                                value: "~9.1% anual"
+                                label: "Total invertido",
+                                value: "$\(String(format: "%.2f", appState.totalInvestedUSDC)) USDC"
                             )
                         }
                     }
@@ -51,69 +55,85 @@ struct YieldHistoryView: View {
                     .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
-                    // Active investments
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Mis inversiones activas")
-                            .font(.dsHeading)
-
-                        ForEach(appState.investedProjects) { project in
-                            HStack(spacing: 0) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(project.ciudad), \(project.estado)")
-                                        .font(.dsCaption.weight(.semibold))
-                                    Text("\(project.mesesRestantes) m · \(String(format: "%.1f", project.rendimientoAnualPct))% anual")
-                                        .font(.dsCaption2)
-                                        .foregroundStyle(.textSecondary)
-                                }
-                                Spacer()
-                                Text("$\(String(format: "%.2f", 50 * project.rendimientoMensualPct))/mes")
-                                    .font(.dsCaption.weight(.bold))
-                                    .foregroundStyle(.chain500)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
-                            .background(Color.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .accessibilityLabel(
-                                "\(project.ciudad), \(project.estado). " +
-                                "\(project.mesesRestantes) meses restantes. " +
-                                "Rendimiento estimado $\(String(format: "%.2f", 50 * project.rendimientoMensualPct)) USD al mes."
-                            )
-                        }
-                    }
-
-                    // History list
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("Historial de rendimientos")
+                    if hasNoActivity {
+                        EmptyYieldStateView()
+                    } else {
+                        // Active investments
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Mis inversiones activas")
                                 .font(.dsHeading)
-                            Spacer()
-                            Button {
-                                exportCSV()
-                            } label: {
-                                Label("Exportar", systemImage: "square.and.arrow.up")
-                                    .font(.dsCaption)
-                                    .foregroundStyle(.chain500)
+
+                            if appState.investedProjects.isEmpty {
+                                EmptyInvestmentsRow()
+                            } else {
+                                ForEach(appState.investedProjects) { project in
+                                    let invertido = appState.investedAmount(in: project.id)
+                                    HStack(spacing: 0) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("\(project.ciudad), \(project.estado)")
+                                                .font(.dsCaption.weight(.semibold))
+                                            Text("\(project.mesesRestantes) m · \(String(format: "%.1f", project.rendimientoAnualPct))% anual · invertiste $\(Int(invertido))")
+                                                .font(.dsCaption2)
+                                                .foregroundStyle(.textSecondary)
+                                        }
+                                        Spacer()
+                                        Text("$\(String(format: "%.2f", invertido * project.rendimientoMensualPct))/mes")
+                                            .font(.dsCaption.weight(.bold))
+                                            .foregroundStyle(.chain500)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .background(Color.surface)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .accessibilityLabel(
+                                        "\(project.ciudad), \(project.estado). " +
+                                        "Invertiste \(Int(invertido)) dolares. " +
+                                        "\(project.mesesRestantes) meses restantes. " +
+                                        "Rendimiento estimado $\(String(format: "%.2f", invertido * project.rendimientoMensualPct)) USD al mes."
+                                    )
+                                }
                             }
-                            .accessibilityLabel("Exportar historial como CSV para declaración fiscal")
                         }
 
-                        ForEach(appState.yieldHistory) { entry in
-                            YieldEntryRow(entry: entry)
-                        }
-                    }
+                        // History list
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text("Historial de rendimientos")
+                                    .font(.dsHeading)
+                                Spacer()
+                                if !appState.yieldHistory.isEmpty {
+                                    Button {
+                                        exportCSV()
+                                    } label: {
+                                        Label("Exportar", systemImage: "square.and.arrow.up")
+                                            .font(.dsCaption)
+                                            .foregroundStyle(.chain500)
+                                    }
+                                    .accessibilityLabel("Exportar historial como CSV para declaración fiscal")
+                                }
+                            }
 
-                    // HCAI: transparency notice
-                    HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundStyle(.chain500)
-                        Text("Cada rendimiento está verificado en blockchain. Toca el código de verificación para confirmarlo tú mismo en Basescan.")
-                            .font(.caption2)
-                            .foregroundStyle(.textSecondary)
+                            if appState.yieldHistory.isEmpty {
+                                EmptyYieldHistoryRow()
+                            } else {
+                                ForEach(appState.yieldHistory) { entry in
+                                    YieldEntryRow(entry: entry)
+                                }
+                            }
+                        }
+
+                        // HCAI: transparency notice
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundStyle(.chain500)
+                            Text("Cada rendimiento está verificado en blockchain. Toca el código de verificación para confirmarlo tú mismo en Basescan.")
+                                .font(.caption2)
+                                .foregroundStyle(.textSecondary)
+                        }
+                        .padding(12)
+                        .background(Color.chain500.opacity(0.05))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .padding(12)
-                    .background(Color.chain500.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .padding(24)
             }
@@ -132,6 +152,58 @@ struct YieldHistoryView: View {
 
     private func exportCSV() {
         // In real app: generate CSV and share
+    }
+}
+
+private struct EmptyYieldStateView: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "chart.line.uptrend.xyaxis.circle")
+                .font(.system(size: 40, weight: .light))
+                .foregroundStyle(.chain500)
+            Text("Aún no tienes inversiones")
+                .font(.dsHeading)
+            Text("Cuando inviertas en un proyecto solar, verás aquí tus rendimientos verificables en blockchain.")
+                .font(.dsCaption)
+                .foregroundStyle(.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+}
+
+private struct EmptyInvestmentsRow: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "bolt.circle")
+                .foregroundStyle(.chain500)
+            Text("Explora proyectos en la pestaña Proyectos para hacer tu primera inversión.")
+                .font(.dsCaption)
+                .foregroundStyle(.textSecondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct EmptyYieldHistoryRow: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "clock")
+                .foregroundStyle(.textSecondary)
+            Text("Los rendimientos aparecerán aquí cuando los beneficiarios paguen sus cuotas mensuales.")
+                .font(.dsCaption)
+                .foregroundStyle(.textSecondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
