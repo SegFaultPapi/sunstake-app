@@ -138,7 +138,7 @@ struct FilterChip: View {
             HStack(spacing: 4) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.caption2)
+                        .font(.dsCaption2)
                 }
                 Text(label)
                     .font(.dsCaption.weight(.medium))
@@ -166,7 +166,7 @@ struct MiniImpactStat: View {
             Text(value)
                 .font(.dsCaption.weight(.bold))
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)

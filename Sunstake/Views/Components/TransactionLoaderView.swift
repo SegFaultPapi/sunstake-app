@@ -68,7 +68,7 @@ struct TransactionLoaderView<Destination: View>: View {
                     // HCAI: verifiable tx hash always shown
                     VStack(spacing: 8) {
                         Text("Código de verificación")
-                            .font(.caption2.weight(.semibold))
+                            .font(.dsCaption2.weight(.semibold))
                             .foregroundStyle(.textSecondary)
                         CopyableVerificationHash(shortHashPrefix: hash)
                         TxHashBasescanButton(hash: hash)
@@ -195,7 +195,7 @@ struct LoaderStep: View {
                     .frame(width: 20, height: 20)
                 if isDone {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.caption.weight(.bold))
                         .foregroundStyle(.white)
                 } else if isCurrent {
                     ProgressView()

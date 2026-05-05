@@ -179,8 +179,8 @@ extension Font {
     static let dsFootnote = Font.system(.footnote,    design: .rounded)
     // Chips, data labels
     static let dsCaption  = Font.system(.caption,     design: .rounded)
-    // Minimal labels, compliance text — formaliza el .caption2 ad-hoc
-    static let dsCaption2 = Font.system(.caption2,    design: .rounded)
+    // Minimal labels, compliance text — raised to .caption (12pt) for legibility
+    static let dsCaption2 = Font.system(.caption,     design: .rounded)
 }
 
 // MARK: - ShapeStyle dot-syntax (lets call sites use `.foregroundStyle(.chain500)`).

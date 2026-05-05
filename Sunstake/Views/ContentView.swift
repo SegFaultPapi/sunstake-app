@@ -102,6 +102,7 @@ struct InvestorRootView: View {
 
 struct AccountView: View {
     @Environment(AppState.self) var appState
+    @Environment(AccessibilityPreferences.self) var accessibility
 
     var body: some View {
         NavigationStack {
@@ -155,9 +156,19 @@ struct AccountView: View {
                             }
                             .accessibilityLabel("No se pudo leer el saldo. Toca para reintentar.")
                         } else {
-                            Text(String(format: "$%.2f USD", appState.walletBalanceUSDC))
-                                .font(.dsCaption.weight(.semibold))
-                                .foregroundStyle(.chain500)
+                            HStack(spacing: 6) {
+                                Text(String(format: "$%.2f USD", appState.walletBalanceUSDC))
+                                    .font(.dsCaption.weight(.semibold))
+                                    .foregroundStyle(.chain500)
+                                Button {
+                                    Task { await appState.refreshWalletBalance() }
+                                } label: {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.dsCaption2)
+                                        .foregroundStyle(.textSecondary)
+                                }
+                                .accessibilityLabel("Actualizar saldo")
+                            }
                         }
                     }
                     HStack {
@@ -168,6 +179,47 @@ struct AccountView: View {
                             .foregroundStyle(.textSecondary)
                     }
                 }
+                Section("Accesibilidad") {
+                    // Tamaño de letra
+                    HStack {
+                        Label("Tamaño de letra", systemImage: "textformat.size")
+                        Spacer()
+                        Picker("", selection: Bindable(accessibility).fontSize) {
+                            ForEach(AccessibilityPreferences.FontSizeOption.allCases) { opt in
+                                Text(opt.rawValue).tag(opt)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .accessibilityLabel("Tamaño de letra: \(accessibility.fontSize.rawValue)")
+                    }
+
+                    // Modo oscuro
+                    HStack {
+                        Label("Apariencia", systemImage: "circle.lefthalf.filled")
+                        Spacer()
+                        Picker("", selection: Bindable(accessibility).colorScheme) {
+                            ForEach(AccessibilityPreferences.AppColorScheme.allCases) { opt in
+                                Label(opt.rawValue, systemImage: opt.icon).tag(opt)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .accessibilityLabel("Apariencia: \(accessibility.colorScheme.rawValue)")
+                    }
+
+                    // Daltonismo
+                    HStack {
+                        Label("Daltonismo", systemImage: "eye.fill")
+                        Spacer()
+                        Picker("", selection: Bindable(accessibility).colorBlindMode) {
+                            ForEach(AccessibilityPreferences.ColorBlindMode.allCases) { opt in
+                                Text(opt.rawValue).tag(opt)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .accessibilityLabel("Modo para daltonismo: \(accessibility.colorBlindMode.rawValue)")
+                    }
+                }
+
                 Section("Seguridad") {
                     Label(appState.hasBiometricAccess ? "Face ID / Touch ID activo" : "Biometría no disponible", systemImage: "faceid")
                         .foregroundStyle(appState.hasBiometricAccess ? .success : .warning)
@@ -198,7 +250,13 @@ struct AccountView: View {
                 await appState.refreshWalletBalance()
             }
             .task {
-                if appState.walletBalanceUSDC == 0 && !appState.isLoadingBalance {
+                await appState.refreshWalletBalance()
+            }
+            .task {
+                // Auto-refresh every 15 s while the tab is visible
+                while !Task.isCancelled {
+                    try? await Task.sleep(nanoseconds: 15_000_000_000)
+                    guard !Task.isCancelled else { break }
                     await appState.refreshWalletBalance()
                 }
             }

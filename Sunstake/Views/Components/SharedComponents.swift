@@ -55,7 +55,7 @@ struct ToastBannerView: View {
             Spacer()
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
-                    .font(.caption2.weight(.bold))
+                    .font(.dsCaption2.weight(.bold))
                     .foregroundStyle(.textSecondary)
             }
             .accessibilityLabel("Cerrar notificación")
@@ -117,7 +117,7 @@ struct CopyableHashView: View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.caption2)
+                    .font(.dsCaption2)
                     .foregroundStyle(.textSecondary)
                 Text(hash.prefix(8) + "..." + hash.suffix(6))
                     .font(.system(.caption, design: .monospaced, weight: .medium))
@@ -190,7 +190,7 @@ struct BiometricConfirmationSheet: View {
                     .foregroundStyle(.success)
                     .font(.caption)
                 Text("Tu Face ID confirma esta operación. Ninguna transacción se realiza sin tu aprobación explícita.")
-                    .font(.caption2)
+                    .font(.dsCaption2)
                     .foregroundStyle(.textSecondary)
             }
             .padding(12)
@@ -275,7 +275,7 @@ struct ContractInfoView: View {
                         .font(.caption.monospaced())
                         .foregroundStyle(.chain500)
                     Text(network)
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
                 Spacer()
@@ -302,7 +302,7 @@ struct ContractInfoView: View {
                         .accessibilityLabel("Ver detalles del registro en el explorador")
                     } else {
                         Text("Enlace pendiente — direccion ilegible")
-                            .font(.caption2.weight(.medium))
+                            .font(.dsCaption2.weight(.medium))
                             .foregroundStyle(.warning)
                             .accessibilityLabel("La direccion del contrato no se pudo normalizar para Basescan")
                     }

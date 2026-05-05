@@ -12,7 +12,7 @@ struct ProjectCardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
                     Image(systemName: "house.fill")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.secondary500)
                     Text("\(project.ciudad), \(project.estado)")
                         .font(.dsSubhead.weight(.semibold))
@@ -66,7 +66,7 @@ struct ProjectCardView: View {
             }
 
             Image(systemName: "chevron.right")
-                .font(.caption2.weight(.semibold))
+                .font(.dsCaption2.weight(.semibold))
                 .foregroundStyle(Color.gray.opacity(0.35))
         }
         .padding(.horizontal, 14)

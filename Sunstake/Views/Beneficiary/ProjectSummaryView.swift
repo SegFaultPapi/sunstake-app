@@ -49,7 +49,7 @@ struct ProjectSummaryView: View {
                         BlockchainInfoRow(label: "Moneda", value: "USD (dólares digitales)")
                     }
                     Text("Al publicar, el contrato quedará registrado públicamente y los inversores podrán financiarlo.")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
                 .padding(16)

@@ -116,7 +116,7 @@ private struct FinancingDashboardContent: View {
                     if project.status == .open {
                         HStack {
                             Image(systemName: "info.circle")
-                                .font(.caption2)
+                                .font(.dsCaption2)
                                 .foregroundStyle(.textSecondary)
                             Text("Faltan $\(Int(montoFaltante)) USD para financiar tu panel completo.")
                                 .font(.dsCaption2)
@@ -321,7 +321,7 @@ private struct FundingRingCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 5) {
                         Image(systemName: "house.fill")
-                            .font(.caption2)
+                            .font(.dsCaption2)
                             .foregroundStyle(.secondary500)
                         Text("\(ciudad), \(estado)")
                             .font(.dsSubhead.weight(.semibold))
@@ -383,7 +383,7 @@ private struct FundingStatusBadge: View {
         switch status {
         case .open:
             Label("Buscando inversores", systemImage: "circle.fill")
-                .font(.caption2.weight(.semibold))
+                .font(.dsCaption2.weight(.semibold))
                 .foregroundStyle(.secondary500)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -391,7 +391,7 @@ private struct FundingStatusBadge: View {
                 .clipShape(Capsule())
         case .funded:
             Label("Financiado", systemImage: "checkmark.circle.fill")
-                .font(.caption2.weight(.semibold))
+                .font(.dsCaption2.weight(.semibold))
                 .foregroundStyle(.success)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -399,7 +399,7 @@ private struct FundingStatusBadge: View {
                 .clipShape(Capsule())
         case .completed:
             Label("Completado", systemImage: "checkmark.seal.fill")
-                .font(.caption2.weight(.semibold))
+                .font(.dsCaption2.weight(.semibold))
                 .foregroundStyle(.chain500)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)

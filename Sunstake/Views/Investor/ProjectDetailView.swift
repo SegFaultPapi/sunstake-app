@@ -137,7 +137,7 @@ struct ProjectDetailView: View {
                             }
                             .foregroundStyle(.chain500)
                             Text("Estas viendo datos de demostracion. En la pestaña Proyectos, desliza hacia abajo para cargar el catalogo real desde Base Sepolia.")
-                                .font(.caption2)
+                                .font(.dsCaption2)
                                 .foregroundStyle(.textSecondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -200,10 +200,10 @@ struct ImpactStat: View {
             Text(value)
                 .font(.system(.body, design: .rounded, weight: .bold))
             Text(unit)
-                .font(.caption2.weight(.semibold))
+                .font(.dsCaption2.weight(.semibold))
                 .foregroundStyle(.success)
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -247,7 +247,7 @@ struct InvestmentEstimatorView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             Text("Estimación basada en historial de pagos. No garantizada.")
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .padding(16)
@@ -266,7 +266,7 @@ struct EstimateChip: View {
                 .font(.dsCaption.weight(.bold))
                 .foregroundStyle(.chain500)
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)

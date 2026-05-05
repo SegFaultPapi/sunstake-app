@@ -187,7 +187,7 @@ struct StatChip: View {
             Text(value)
                 .font(.dsCaption.weight(.semibold))
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -209,7 +209,7 @@ struct PanelStat: View {
                 .font(.caption.weight(.semibold))
                 .multilineTextAlignment(.center)
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -226,7 +226,7 @@ struct PaymentRow: View {
                     Text(payment.fecha, style: .date)
                         .font(.dsCaption.weight(.medium))
                     Text("$\(String(format: "%.2f", payment.montoUSDC)) USD")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
                 Spacer()

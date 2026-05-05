@@ -143,11 +143,11 @@ struct PurchaseFlowView: View {
 
                 HStack {
                     Text("Mín $1 USD")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                     Spacer()
                     Text("Máx $500 USD")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
             }
@@ -250,7 +250,7 @@ struct PurchaseFlowView: View {
                     Text("Sin costos ocultos")
                         .font(.dsCaption.weight(.semibold))
                     Text("El costo de procesamiento ($\(String(format: "%.2f", gasFeeUSD)) USD) es el único cargo adicional al monto invertido.")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
             }
@@ -300,7 +300,7 @@ struct StepIndicator: View {
                 HStack(spacing: 0) {
                     ForEach(labels.indices, id: \.self) { i in
                         Text(labels[i])
-                            .font(.caption2)
+                            .font(.dsCaption2)
                             .foregroundStyle(i + 1 == current ? .chain500 : .textSecondary)
                             .frame(maxWidth: .infinity)
                             .multilineTextAlignment(.center)
@@ -322,7 +322,7 @@ struct YieldPreviewChip: View {
                 .foregroundStyle(.chain500)
                 .contentTransition(.numericText())
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
                 .multilineTextAlignment(.center)
         }

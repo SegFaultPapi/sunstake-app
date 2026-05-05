@@ -133,7 +133,7 @@ struct YieldHistoryView: View {
                             Image(systemName: "info.circle.fill")
                                 .foregroundStyle(.chain500)
                             Text("Cada rendimiento está verificado en la red de pagos. Toca el código de verificación para confirmarlo tú mismo en los detalles de la transacción.")
-                                .font(.caption2)
+                                .font(.dsCaption2)
                                 .foregroundStyle(.textSecondary)
                         }
                         .padding(12)

@@ -81,7 +81,7 @@ struct QuotaResultView: View {
                         Spacer()
                         // HCAI badge
                         Text("Tú decides")
-                            .font(.caption2.weight(.semibold))
+                            .font(.dsCaption2.weight(.semibold))
                             .foregroundStyle(.secondary500)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -105,7 +105,7 @@ struct QuotaResultView: View {
                                         .font(.dsCaption.weight(.semibold))
                                     if let cuota = cuotaForTerm(term) {
                                         Text("$\(Int(cuota))/mes")
-                                            .font(.caption2)
+                                            .font(.dsCaption2)
                                             .foregroundStyle(selectedTerm == term ? .white.opacity(0.85) : .textSecondary)
                                     }
                                 }
@@ -160,7 +160,7 @@ struct QuotaResultView: View {
                     .accessibilityLabel("Publicar proyecto en blockchain. Requiere confirmación con Face ID.")
 
                     Text("Podrás revisar todos los detalles antes de confirmar con Face ID")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)

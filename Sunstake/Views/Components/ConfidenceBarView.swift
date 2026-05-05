@@ -31,7 +31,7 @@ struct ConfidenceBarView: View {
                     }
 
                     Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
 

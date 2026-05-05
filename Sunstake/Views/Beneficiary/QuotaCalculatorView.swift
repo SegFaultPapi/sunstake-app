@@ -57,7 +57,7 @@ struct QuotaCalculatorView: View {
 
                         if facturaEdited && !facturaMXN.isEmpty && !facturaValida {
                             Label("Ingresa solo números", systemImage: "exclamationmark.circle.fill")
-                                .font(.caption2)
+                                .font(.dsCaption2)
                                 .foregroundStyle(.danger)
                                 .transition(.opacity.animation(.easeInOut))
                         }
