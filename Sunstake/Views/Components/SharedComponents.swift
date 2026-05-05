@@ -15,7 +15,7 @@ struct StatusToast: Equatable {
     }
 }
 
-private struct ToastBannerView: View {
+struct ToastBannerView: View {
     let toast: StatusToast
     let onDismiss: () -> Void
 
@@ -67,84 +67,6 @@ private struct ToastBannerView: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(iconColor.opacity(0.2), lineWidth: 1))
         .padding(.horizontal, 16)
         .accessibilityElement(children: .combine)
-    }
-}
-
-private struct ToastOverlayModifier: ViewModifier {
-    @Environment(AppState.self) var appState
-    @State private var currentToast: StatusToast?
-    @State private var isVisible = false
-    @State private var dismissTask: Task<Void, Never>?
-
-    func body(content: Content) -> some View {
-        content
-            .overlay(alignment: .top) {
-                if isVisible, let toast = currentToast {
-                    ToastBannerView(toast: toast, onDismiss: dismiss)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                        .padding(.top, 8)
-                        .zIndex(999)
-                }
-            }
-            .onChange(of: appState.transactionState) { _, newState in
-                handleStateChange(newState)
-            }
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isVisible)
-    }
-
-    private func handleStateChange(_ state: TransactionState) {
-        switch state {
-        case .purchaseSuccess(let hash):
-            show(StatusToast(
-                kind: .success,
-                title: "¡Inversión confirmada!",
-                subtitle: "Tu participación está registrada en la red de pagos.",
-                txHash: hash
-            ), autoDismissAfter: 4)
-
-        case .success(let hash):
-            show(StatusToast(
-                kind: .success,
-                title: "¡Proyecto publicado!",
-                subtitle: "Ya es visible para todos los inversores.",
-                txHash: hash
-            ), autoDismissAfter: 4)
-
-        case .error(let msg):
-            show(StatusToast(
-                kind: .error,
-                title: "Error en la transacción",
-                subtitle: msg,
-                txHash: nil
-            ), autoDismissAfter: 6)
-
-        default:
-            break
-        }
-    }
-
-    private func show(_ toast: StatusToast, autoDismissAfter seconds: Double) {
-        dismissTask?.cancel()
-        currentToast = toast
-        withAnimation { isVisible = true }
-        UINotificationFeedbackGenerator().notificationOccurred(toast.kind == .error ? .error : .success)
-
-        dismissTask = Task {
-            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
-            guard !Task.isCancelled else { return }
-            await MainActor.run { dismiss() }
-        }
-    }
-
-    private func dismiss() {
-        dismissTask?.cancel()
-        withAnimation { isVisible = false }
-    }
-}
-
-extension View {
-    func statusToastOverlay() -> some View {
-        modifier(ToastOverlayModifier())
     }
 }
 

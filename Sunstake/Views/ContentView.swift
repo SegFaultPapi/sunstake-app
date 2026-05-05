@@ -4,26 +4,36 @@ struct ContentView: View {
     @Environment(AppState.self) var appState
 
     var body: some View {
-        Group {
-            if !appState.hasCompletedOnboarding {
-                OnboardingView()
-            } else if !appState.isLoggedIn {
-                AuthView()
-            } else {
-                switch appState.userRole {
-                case .beneficiary:
-                    BeneficiaryRootView()
-                case .investor:
-                    InvestorRootView()
-                case .none:
-                    RoleSelectionView()
+        ZStack(alignment: .top) {
+            Group {
+                if !appState.hasCompletedOnboarding {
+                    OnboardingView()
+                } else if !appState.isLoggedIn {
+                    AuthView()
+                } else {
+                    switch appState.userRole {
+                    case .beneficiary:
+                        BeneficiaryRootView()
+                    case .investor:
+                        InvestorRootView()
+                    case .none:
+                        RoleSelectionView()
+                    }
                 }
             }
+            .animation(.easeInOut(duration: 0.35), value: appState.hasCompletedOnboarding)
+            .animation(.easeInOut(duration: 0.35), value: appState.isLoggedIn)
+            .animation(.easeInOut(duration: 0.25), value: appState.userRole == .none)
+
+            // Toast layer — rendered above TabView and NavigationStack
+            if appState.isShowingToast, let toast = appState.activeToast {
+                ToastBannerView(toast: toast, onDismiss: { appState.dismissToast() })
+                    .padding(.top, 56)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(999)
+            }
         }
-        .animation(.easeInOut(duration: 0.35), value: appState.hasCompletedOnboarding)
-        .animation(.easeInOut(duration: 0.35), value: appState.isLoggedIn)
-        .animation(.easeInOut(duration: 0.25), value: appState.userRole == .none)
-        .statusToastOverlay()
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: appState.isShowingToast)
     }
 }
 

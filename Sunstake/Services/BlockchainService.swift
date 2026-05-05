@@ -72,9 +72,16 @@ final class BlockchainService: @unchecked Sendable {
     // MARK: - Red
 
     func ensureBaseSepolia() async throws {
-        let chainId = try await fetchChainId()
-        guard chainId == config.chainHex.lowercased() else {
+        do {
+            let chainId = try await fetchChainId()
+            guard chainId == config.chainHex.lowercased() else {
+                throw BlockchainError.invalidNetwork
+            }
+        } catch BlockchainError.invalidNetwork {
             throw BlockchainError.invalidNetwork
+        } catch {
+            // RPC connectivity issue on the chain-check itself — proceed and let
+            // the actual transaction fail if the network is truly wrong.
         }
     }
 
@@ -104,28 +111,22 @@ final class BlockchainService: @unchecked Sendable {
 
     /// Catalogo desde `SunstakeFactory.getProjects()` + `getProjectMetadata` / `porcentajeFinanciadoBps` por fila.
     func fetchSolarProjectsForExplorer() async throws -> [SolarProject] {
-        try await ensureBaseSepolia()
         let factory = try requireFactory()
         let rawList =
             try await ethCallHexResult(to: Self.canonicalEVMAddress(factory), data: "0x" + Self.selectorGetProjects)
         let solarAddrs = EVMABI.decodeAddressArray(rawList)
-        if solarAddrs.isEmpty {
-            return []
-        }
+        if solarAddrs.isEmpty { return [] }
 
         var rows: [SolarProject] = []
         rows.reserveCapacity(solarAddrs.count)
-        try await withThrowingTaskGroup(of: SolarProject?.self) { group in
+        // withTaskGroup (non-throwing) so one bad row doesn't cancel all others
+        await withTaskGroup(of: SolarProject?.self) { group in
             for a in solarAddrs {
                 let addr = Self.canonicalEVMAddress(a)
-                group.addTask {
-                    try await self.explorerRow(forSolar: addr)
-                }
+                group.addTask { try? await self.explorerRow(forSolar: addr) }
             }
-            for try await row in group {
-                if let row {
-                    rows.append(row)
-                }
+            for await row in group {
+                if let row { rows.append(row) }
             }
         }
         return rows.sorted {
@@ -136,7 +137,6 @@ final class BlockchainService: @unchecked Sendable {
     /// Busca en `SunstakeFactory.getProjects()` el proyecto cuyo `beneficiario` coincide con `walletAddress`.
     /// Devuelve `nil` si el usuario no tiene ningun proyecto publicado.
     func fetchActiveProjectForBeneficiary(walletAddress: String) async throws -> SolarProject? {
-        try await ensureBaseSepolia()
         let factory = try requireFactory()
         let canonicalFactory = Self.canonicalEVMAddress(factory)
         let rawList = try await ethCallHexResult(to: canonicalFactory, data: "0x" + Self.selectorGetProjects)
@@ -163,7 +163,6 @@ final class BlockchainService: @unchecked Sendable {
     /// Para cada proyecto en la factory, consulta el balance ERC-1155 de `walletAddress`.
     /// Devuelve los proyectos donde el balance es > 0, junto con el monto invertido en USD.
     func fetchInvestedProjectsForWallet(walletAddress: String) async throws -> [(project: SolarProject, investedUSD: Double)] {
-        try await ensureBaseSepolia()
         let factory = try requireFactory()
         let canonicalFactory = Self.canonicalEVMAddress(factory)
         let rawList = try await ethCallHexResult(to: canonicalFactory, data: "0x" + Self.selectorGetProjects)
@@ -172,23 +171,27 @@ final class BlockchainService: @unchecked Sendable {
 
         var results: [(project: SolarProject, investedUSD: Double)] = []
 
-        try await withThrowingTaskGroup(of: (SolarProject, Double)?.self) { group in
+        // withTaskGroup (non-throwing) — a failed balanceOf for one project doesn't abort the rest
+        await withTaskGroup(of: (SolarProject, Double)?.self) { group in
             for rawAddr in solarAddrs {
                 let solarAddr = Self.canonicalEVMAddress(rawAddr)
                 group.addTask {
-                    let calldata = EVMABI.encodeCall(
-                        selector: Self.selectorBalanceOf,
-                        params: [.address(walletAddress), .uint256(Self.fractionTokenId)]
-                    )
-                    let balRaw = try await self.ethCallHexResult(to: solarAddr, data: calldata)
-                    let balanceMicro = EVMABI.decodeUInt256(balRaw)
-                    guard balanceMicro > 0 else { return nil }
-                    guard let project = try await self.explorerRow(forSolar: solarAddr) else { return nil }
-                    let investedUSD = Double(balanceMicro) / Self.usdcScale
-                    return (project, investedUSD)
+                    do {
+                        let calldata = EVMABI.encodeCall(
+                            selector: Self.selectorBalanceOf,
+                            params: [.address(walletAddress), .uint256(Self.fractionTokenId)]
+                        )
+                        let balRaw = try await self.ethCallHexResult(to: solarAddr, data: calldata)
+                        let balanceMicro = EVMABI.decodeUInt256(balRaw)
+                        guard balanceMicro > 0 else { return nil }
+                        guard let project = try await self.explorerRow(forSolar: solarAddr) else { return nil }
+                        return (project, Double(balanceMicro) / Self.usdcScale)
+                    } catch {
+                        return nil
+                    }
                 }
             }
-            for try await pair in group {
+            for await pair in group {
                 if let pair { results.append(pair) }
             }
         }
@@ -310,7 +313,10 @@ final class BlockchainService: @unchecked Sendable {
 
     // MARK: - Invertir (inversor)
 
-    /// approve(USDC) + `SolarProject.invest`. Devuelve el hash de la transacción `invest`.
+    /// approve(USDC) + `SolarProject.invest`.
+    /// Devuelve el hash de `invest` en cuanto la TX es enviada.
+    /// Lanza si el approve falla; si el receipt de invest tarda o falla, igual devuelve el hash
+    /// para que el caller pueda actualizar estado optimistamente.
     func purchaseTokens(
         solarProjectAddress: String,
         amountUSDC: Double,
@@ -318,17 +324,13 @@ final class BlockchainService: @unchecked Sendable {
         signer: EVMSigner
     ) async throws -> String {
         try await ensureBaseSepolia()
-        let spender = solarProjectAddress
         let amountRaw = Self.usdcToRawUnits(amountUSDC)
 
+        // 1. Approve — debe confirmarse antes de invest
         let approveData = EVMABI.encodeCall(
             selector: Self.selectorApprove,
-            params: [
-                .address(spender),
-                .uint256(amountRaw)
-            ]
+            params: [.address(solarProjectAddress), .uint256(amountRaw)]
         )
-
         let approveHash = try await sendContractTransaction(
             to: config.usdcAddress,
             data: approveData,
@@ -339,11 +341,11 @@ final class BlockchainService: @unchecked Sendable {
         let approveReceipt = try await waitForReceipt(txHash: approveHash)
         try ensureSuccessReceipt(approveReceipt)
 
+        // 2. Invest — enviamos la TX y capturamos el hash inmediatamente
         let investData = EVMABI.encodeCall(
             selector: Self.selectorInvest,
             params: [.uint256(amountRaw)]
         )
-
         let investHash = try await sendContractTransaction(
             to: solarProjectAddress,
             data: investData,
@@ -351,8 +353,21 @@ final class BlockchainService: @unchecked Sendable {
             signer: signer,
             fallbackGasLimit: 450_000
         )
-        let investReceipt = try await waitForReceipt(txHash: investHash)
-        try ensureSuccessReceipt(investReceipt)
+
+        // 3. Confirmamos receipt sin bloquear el hash — si falla el polling
+        //    el caller ya tiene el hash y puede actualizar estado optimistamente.
+        do {
+            let investReceipt = try await waitForReceipt(txHash: investHash)
+            try ensureSuccessReceipt(investReceipt)
+        } catch BlockchainError.receiptTimeout {
+            // TX enviada, pero no confirmamos a tiempo — devolvemos el hash igual
+        } catch BlockchainError.transactionReverted {
+            // La TX fue minada pero revirtio — la propagamos para que el caller muestre error
+            throw BlockchainError.transactionReverted
+        } catch {
+            // Otro error de red en el polling — devolvemos el hash optimistamente
+        }
+
         return investHash
     }
 
@@ -394,8 +409,14 @@ final class BlockchainService: @unchecked Sendable {
             signer: signer,
             fallbackGasLimit: 900_000
         )
-        let payReceipt = try await waitForReceipt(txHash: payHash)
-        try ensureSuccessReceipt(payReceipt)
+        do {
+            let payReceipt = try await waitForReceipt(txHash: payHash)
+            try ensureSuccessReceipt(payReceipt)
+        } catch BlockchainError.transactionReverted {
+            throw BlockchainError.transactionReverted
+        } catch {
+            // Timeout o error de red — devolvemos hash optimistamente
+        }
         return payHash
     }
 
@@ -450,11 +471,16 @@ final class BlockchainService: @unchecked Sendable {
     // MARK: - Receipt / logs
 
     private func waitForReceipt(txHash: String) async throws -> [String: Any] {
-        for _ in 0..<90 {
-            if let receipt = try await ethGetTransactionReceipt(hash: txHash), receipt["blockNumber"] != nil {
-                return receipt
+        for _ in 0..<60 {
+            do {
+                if let receipt = try await ethGetTransactionReceipt(hash: txHash),
+                   receipt["blockNumber"] != nil {
+                    return receipt
+                }
+            } catch {
+                // RPC hiccup on this poll — keep retrying instead of aborting
             }
-            try await Task.sleep(nanoseconds: 1_000_000_000)
+            try await Task.sleep(nanoseconds: 2_000_000_000)
         }
         throw BlockchainError.receiptTimeout
     }

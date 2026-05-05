@@ -28,13 +28,27 @@ struct NetworkConfig {
         } else {
             factoryAddress = "0x" + trimmed
         }
+
+        let apiKey = Secrets.alchemyApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let primaryURL: URL
+        let fallbackURL: URL
+        if apiKey.isEmpty {
+            // Sin API key: nodo público como primario, demo de Alchemy como respaldo
+            primaryURL  = URL(string: "https://sepolia.base.org")!
+            fallbackURL = URL(string: "https://base-sepolia.g.alchemy.com/v2/demo")!
+        } else {
+            // Con API key: Alchemy como primario (sin rate-limit efectivo), nodo público de respaldo
+            primaryURL  = URL(string: "https://base-sepolia.g.alchemy.com/v2/\(apiKey)")!
+            fallbackURL = URL(string: "https://sepolia.base.org")!
+        }
+
         return NetworkConfig(
             environment: .baseSepolia,
             chainId: 84_532,
             chainHex: "0x14a34",
             chainName: "Base Sepolia",
-            rpcURL: URL(string: "https://sepolia.base.org")!,
-            fallbackRPCURL: URL(string: "https://base-sepolia.g.alchemy.com/v2/demo")!,
+            rpcURL: primaryURL,
+            fallbackRPCURL: fallbackURL,
             baseScanBaseURL: URL(string: "https://sepolia.basescan.org")!,
             usdcAddress: "0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f",
             factoryAddress: factoryAddress,

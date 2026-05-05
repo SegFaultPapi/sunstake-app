@@ -54,6 +54,12 @@ final class AppState {
     // Transaction state
     var transactionState: TransactionState = .idle
 
+    // Toast notifications
+    var activeToast: StatusToast? = nil
+    var isShowingToast: Bool = false
+    var isRestoringInvestorState: Bool = false
+    var investorRestoreFailed: Bool = false
+
     private func evmSigner() -> PrivyEVMSigner {
         PrivyEVMSigner(privyClient: privyClient, rpcURL: networkConfig.rpcURL.absoluteString)
     }
@@ -122,8 +128,20 @@ final class AppState {
             transactionState = .success(txHash: blockchainResult.txHash)
             activeProject = makeFreshProject(blockchainResult: blockchainResult)
             await refreshProjectCatalogFromChain()
+            await showToast(StatusToast(
+                kind: .success,
+                title: "¡Proyecto publicado!",
+                subtitle: "Ya es visible para todos los inversores.",
+                txHash: blockchainResult.txHash
+            ), autoDismissAfter: 5)
         } catch {
             transactionState = .error(message: error.localizedDescription)
+            await showToast(StatusToast(
+                kind: .error,
+                title: "Error al publicar",
+                subtitle: error.localizedDescription,
+                txHash: nil
+            ), autoDismissAfter: 6)
         }
     }
 
@@ -167,6 +185,32 @@ final class AppState {
                 transactionState = .error(message: "Selecciona un proyecto valido antes de invertir.")
                 return
             }
+            guard project.isBackedByOnChainContracts else {
+                let msg =
+                    "Este listado es de demostracion. En Proyectos, desliza hacia abajo para cargar proyectos reales desde Base Sepolia."
+                transactionState = .idle
+                await showToast(
+                    StatusToast(
+                        kind: .info,
+                        title: "Inversion no disponible en modo demo",
+                        subtitle: msg,
+                        txHash: nil
+                    ),
+                    autoDismissAfter: 7
+                )
+                return
+            }
+            // Preflight: refresh balance and abort early if insufficient USDC
+            await refreshWalletBalance()
+            if balanceError == nil && walletBalanceUSDC < montoUSD {
+                let needed = String(format: "%.2f", montoUSD)
+                let have   = String(format: "%.2f", walletBalanceUSDC)
+                let msg = "Necesitas $\(needed) USDC pero tienes $\(have). Obtén USDC de prueba en staging.aave.com/faucet (selecciona Base Sepolia)."
+                transactionState = .error(message: msg)
+                await showToast(StatusToast(kind: .error, title: "Saldo insuficiente", subtitle: msg, txHash: nil), autoDismissAfter: 8)
+                return
+            }
+
             let hash = try await blockchainService.purchaseTokens(
                 solarProjectAddress: project.contractAddress,
                 amountUSDC: montoUSD,
@@ -186,8 +230,22 @@ final class AppState {
             }
             transactionState = .purchaseSuccess(txHash: hash)
             await refreshWalletBalance()
+            await showToast(StatusToast(
+                kind: .success,
+                title: "¡Inversión confirmada!",
+                subtitle: "Tu participación está registrada en la red de pagos.",
+                txHash: hash
+            ), autoDismissAfter: 5)
+        } catch is CancellationError {
+            transactionState = .idle
         } catch {
             transactionState = .error(message: error.localizedDescription)
+            await showToast(StatusToast(
+                kind: .error,
+                title: "No se pudo completar la inversion",
+                subtitle: error.localizedDescription,
+                txHash: nil
+            ), autoDismissAfter: 6)
         }
     }
 
@@ -228,8 +286,20 @@ final class AppState {
             ownershipPct = min(1.0, ownershipPct + (1.0 / Double(quotaResult?.plazoMeses ?? 36)))
             transactionState = .purchaseSuccess(txHash: hash)
             await refreshWalletBalance()
+            await showToast(StatusToast(
+                kind: .success,
+                title: "Pago enviado",
+                subtitle: "Tu cuota mensual fue registrada en la red de pagos.",
+                txHash: hash
+            ), autoDismissAfter: 5)
         } catch {
             transactionState = .error(message: error.localizedDescription)
+            await showToast(StatusToast(
+                kind: .error,
+                title: "Error al pagar cuota",
+                subtitle: error.localizedDescription,
+                txHash: nil
+            ), autoDismissAfter: 6)
         }
     }
 
@@ -260,12 +330,30 @@ final class AppState {
         transactionState = .idle
     }
 
+    @MainActor
+    func showToast(_ toast: StatusToast, autoDismissAfter seconds: Double = 4) {
+        activeToast = toast
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { isShowingToast = true }
+        UINotificationFeedbackGenerator().notificationOccurred(toast.kind == .error ? .error : .success)
+        Task {
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            await MainActor.run { dismissToast() }
+        }
+    }
+
+    @MainActor
+    func dismissToast() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { isShowingToast = false }
+    }
+
     /// Restaura `investedProjects` e `investments` desde la chain para el inversor que acaba de iniciar sesion.
     func restoreInvestorStateFromChain() async {
         guard !walletAddress.isEmpty else { return }
+        isRestoringInvestorState = true
+        investorRestoreFailed = false
+        defer { isRestoringInvestorState = false }
         do {
             let pairs = try await blockchainService.fetchInvestedProjectsForWallet(walletAddress: walletAddress)
-            guard !pairs.isEmpty else { return }
             for (project, investedUSD) in pairs {
                 if !investedProjects.contains(where: { $0.id == project.id }) {
                     investedProjects.append(project)
@@ -281,6 +369,7 @@ final class AppState {
                 }
             }
         } catch {
+            investorRestoreFailed = true
             #if DEBUG
             print("[Sunstake] No se pudo restaurar inversiones: \(error.localizedDescription)")
             #endif
@@ -376,6 +465,7 @@ final class AppState {
         yieldHistory = []
         investments = []
         investedProjects = []
+        investorRestoreFailed = false
         activeProject = nil
         ownershipPct = 0
         quotaResult = nil

@@ -114,18 +114,37 @@ struct ProjectDetailView: View {
 
                 // CTA
                 if project.isOpen {
-                    Button {
-                        showPurchase = true
-                    } label: {
-                        Text("Invertir en este proyecto")
-                            .font(.dsHeading)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.chain500)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    if project.isBackedByOnChainContracts {
+                        Button {
+                            showPurchase = true
+                        } label: {
+                            Text("Invertir en este proyecto")
+                                .font(.dsHeading)
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.chain500)
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .accessibilityLabel("Invertir en proyecto de \(project.ciudad). Mínimo $\(Int(project.montoMinUSD)) USD.")
+                    } else {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label {
+                                Text("Inversion solo con proyectos en blockchain")
+                                    .font(.dsCaption.weight(.semibold))
+                            } icon: {
+                                Image(systemName: "info.circle.fill")
+                            }
+                            .foregroundStyle(.chain500)
+                            Text("Estas viendo datos de demostracion. En la pestaña Proyectos, desliza hacia abajo para cargar el catalogo real desde Base Sepolia.")
+                                .font(.caption2)
+                                .foregroundStyle(.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(Color.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                    .accessibilityLabel("Invertir en proyecto de \(project.ciudad). Mínimo $\(Int(project.montoMinUSD)) USD.")
                 } else {
                     Label("Este proyecto está cerrado", systemImage: "lock.fill")
                         .font(.dsHeading)

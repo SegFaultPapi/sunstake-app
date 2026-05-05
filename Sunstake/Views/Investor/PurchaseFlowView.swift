@@ -99,9 +99,13 @@ struct PurchaseFlowView: View {
                     title: "Confirmar inversión",
                     subtitle: "$\(Int(amount)) USDC · \(tokens) fracciones · \(project.ciudad), \(project.estado)"
                 ) {
-                    showBiometric = false
-                    dismiss()
-                    Task { await appState.purchaseTokens(montoUSD: amount, project: project) }
+                    Task { @MainActor in
+                        showBiometric = false
+                        await appState.purchaseTokens(montoUSD: amount, project: project)
+                        if appState.transactionState.isSuccess {
+                            dismiss()
+                        }
+                    }
                 }
             }
         }
@@ -234,7 +238,7 @@ struct PurchaseFlowView: View {
             // Contract info — HCAI: verifiable trust
             ContractInfoView(
                 address: project.contractAddress,
-                network: "Base Sepolia",
+                network: "Modo de prueba",
                 explorerURL: "https://sepolia.basescan.org"
             )
 

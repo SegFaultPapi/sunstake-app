@@ -55,7 +55,13 @@ struct YieldHistoryView: View {
                     .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
-                    if hasNoActivity {
+                    if appState.isRestoringInvestorState {
+                        RestoringInvestorStateView()
+                    } else if appState.investorRestoreFailed && hasNoActivity {
+                        RestoreFailedView {
+                            Task { await appState.restoreInvestorStateFromChain() }
+                        }
+                    } else if hasNoActivity {
                         EmptyYieldStateView()
                     } else {
                         // Active investments
@@ -139,6 +145,11 @@ struct YieldHistoryView: View {
             }
             .changeRoleButton()
             .navigationTitle("Mis rendimientos")
+            .task {
+                if appState.investedProjects.isEmpty && !appState.isRestoringInvestorState {
+                    await appState.restoreInvestorStateFromChain()
+                }
+            }
         }
     }
 
@@ -204,6 +215,57 @@ private struct EmptyYieldHistoryRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct RestoreFailedView: View {
+    let onRetry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "wifi.slash")
+                .font(.system(size: 32, weight: .light))
+                .foregroundStyle(.warning)
+            Text("No pudimos conectar a la red de pagos")
+                .font(.dsCaption.weight(.semibold))
+                .foregroundStyle(.textPrimary)
+            Text("Verifica tu conexión e intenta de nuevo.")
+                .font(.dsCaption2)
+                .foregroundStyle(.textSecondary)
+                .multilineTextAlignment(.center)
+            Button(action: onRetry) {
+                Label("Reintentar", systemImage: "arrow.clockwise")
+                    .font(.dsCaption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.chain500)
+                    .clipShape(Capsule())
+            }
+            .accessibilityLabel("Reintentar cargar inversiones desde la red de pagos")
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+}
+
+private struct RestoringInvestorStateView: View {
+    var body: some View {
+        VStack(spacing: 14) {
+            ProgressView()
+                .scaleEffect(1.3)
+                .tint(.chain500)
+            Text("Verificando tus inversiones en la red de pagos…")
+                .font(.dsCaption)
+                .foregroundStyle(.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
 

@@ -131,6 +131,11 @@ struct SolarProject: Identifiable {
     var mesesPagados: Int { plazoTotalMeses - mesesRestantes }
     var rendimientoMensualPct: Double { rendimientoAnualPct / 12 / 100 }
     var isOpen: Bool { status == .open }
+
+    /// Los mocks del catalogo dejan `paymentSplitter` vacío; los proyectos desplegados desde la factory incluyen metadata on-chain.
+    var isBackedByOnChainContracts: Bool {
+        !paymentSplitterAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 }
 
 struct Payment: Identifiable {

@@ -15,5 +15,9 @@ enum Secrets {
 
     /// SunstakeFactory en Base Sepolia (output de forge script Deploy.s.sol).
     static let sunstakeFactoryAddress: String = ""
+
+    /// API key de Alchemy (https://dashboard.alchemy.com → Create App → Base Sepolia).
+    /// Deja vacío para usar el nodo público como fallback.
+    static let alchemyApiKey: String = ""
 }
 */
