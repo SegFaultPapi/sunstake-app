@@ -13,9 +13,9 @@ struct ProjectSummaryView: View {
                 // Header
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Revisa tu proyecto")
-                        .font(.sunTitle)
+                        .font(.dsTitle)
                     Text("Este es el contrato que se registrará en blockchain. Revísalo antes de confirmar con Face ID.")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                 }
 
@@ -35,14 +35,14 @@ struct ProjectSummaryView: View {
                     Divider().padding(.horizontal)
                     SummaryRow(label: "Comisión Sunstake", value: "7% sobre rendimientos")
                 }
-                .background(Color.surfaceGray)
+                .background(Color.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 // Blockchain info
                 VStack(alignment: .leading, spacing: 12) {
                     Label("Contrato en blockchain", systemImage: "link.circle.fill")
-                        .font(.sunHeading)
-                        .foregroundStyle(.chainIndigo)
+                        .font(.dsHeading)
+                        .foregroundStyle(.chain500)
                     VStack(spacing: 8) {
                         BlockchainInfoRow(label: "Red", value: "Base Sepolia (modo de prueba)")
                         BlockchainInfoRow(label: "Estándar de token", value: "ERC-1155 fraccionado")
@@ -53,19 +53,19 @@ struct ProjectSummaryView: View {
                         .foregroundStyle(.textSecondary)
                 }
                 .padding(16)
-                .background(Color.chainIndigo.opacity(0.05))
+                .background(Color.chain500.opacity(0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 14))
 
                 // HCAI: Responsible design notice
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "info.circle.fill")
-                        .foregroundStyle(.chainIndigo)
+                        .foregroundStyle(.chain500)
                     Text("Se requerirá tu Face ID para confirmar. No se realizarán transacciones automáticas sin tu aprobación.")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                 }
                 .padding(14)
-                .background(Color.chainIndigo.opacity(0.05))
+                .background(Color.chain500.opacity(0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 // CTA
@@ -76,12 +76,12 @@ struct ProjectSummaryView: View {
                         Image(systemName: "faceid")
                             .font(.title3)
                         Text("Confirmar con Face ID")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                     }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.sunOrange)
+                    .background(Color.secondary500)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .accessibilityLabel("Confirmar publicación del proyecto con Face ID")
@@ -120,12 +120,12 @@ struct SummaryRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.sunCaption)
+                .font(.dsCaption)
                 .foregroundStyle(.textSecondary)
             Spacer()
             Text(value)
-                .font(accent ? .sunHeading : .sunCaption.weight(.semibold))
-                .foregroundStyle(accent ? .sunOrange : .textPrimary)
+                .font(accent ? .dsHeading : .dsCaption.weight(.semibold))
+                .foregroundStyle(accent ? .secondary500 : .textPrimary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -139,11 +139,11 @@ struct BlockchainInfoRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.sunCaption)
+                .font(.dsCaption)
                 .foregroundStyle(.textSecondary)
             Spacer()
             Text(value)
-                .font(.sunCaption.weight(.medium))
+                .font(.dsCaption.weight(.medium))
                 .foregroundStyle(.textPrimary)
         }
     }

@@ -11,9 +11,9 @@ struct ProjectCardView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "house.fill")
                             .font(.caption)
-                            .foregroundStyle(.sunOrange)
+                            .foregroundStyle(.secondary500)
                         Text("\(project.ciudad), \(project.estado)")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                     }
                     Text("Beneficiario: \(project.beneficiario)")
                         .font(.caption2)
@@ -34,7 +34,7 @@ struct ProjectCardView: View {
                             .fill(
                                 project.status == .funded
                                 ? AnyShapeStyle(Color.gray)
-                                : AnyShapeStyle(LinearGradient(colors: [.chainIndigo, .chainIndigo.opacity(0.6)],
+                                : AnyShapeStyle(LinearGradient(colors: [.chain500, .chain500.opacity(0.6)],
                                                  startPoint: .leading, endPoint: .trailing))
                             )
                             .frame(width: geo.size.width * project.porcentajeFinanciado, height: 6)
@@ -57,33 +57,33 @@ struct ProjectCardView: View {
             HStack(spacing: 0) {
                 CardMetric(
                     icon: "chart.line.uptrend.xyaxis",
-                    iconColor: .chainIndigo,
+                    iconColor: .chain500,
                     value: "\(String(format: "%.1f", project.rendimientoAnualPct))%",
                     label: "anual"
                 )
                 Divider().frame(height: 28)
                 CardMetric(
                     icon: "calendar",
-                    iconColor: .sunOrange,
+                    iconColor: .secondary500,
                     value: "\(project.mesesRestantes) m",
                     label: "restantes"
                 )
                 Divider().frame(height: 28)
                 CardMetric(
                     icon: "leaf.fill",
-                    iconColor: .green,
+                    iconColor: .success,
                     value: "\(String(format: "%.1f", project.co2ToneladasAnio)) ton",
                     label: "CO₂/año"
                 )
                 Divider().frame(height: 28)
                 CardMetric(
                     icon: "dollarsign.circle.fill",
-                    iconColor: .chainIndigo,
+                    iconColor: .chain500,
                     value: "desde $\(Int(project.montoMinUSD))",
                     label: "USD"
                 )
             }
-            .background(Color.surfaceGray)
+            .background(Color.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .padding(16)

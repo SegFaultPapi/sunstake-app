@@ -20,14 +20,14 @@ struct TransactionLoaderView<Destination: View>: View {
                 VStack(spacing: 20) {
                     ZStack {
                         Circle()
-                            .stroke(Color.chainIndigo.opacity(0.15), lineWidth: 4)
+                            .stroke(Color.chain500.opacity(0.15), lineWidth: 4)
                             .frame(width: 80, height: 80)
                         ProgressView()
                             .scaleEffect(1.5)
-                            .tint(.chainIndigo)
+                            .tint(.chain500)
                     }
                     Text(appState.transactionState.label)
-                        .font(.sunHeading)
+                        .font(.dsHeading)
                         .foregroundStyle(.textPrimary)
                         .multilineTextAlignment(.center)
                         .animation(.easeInOut, value: appState.transactionState.label)
@@ -39,7 +39,7 @@ struct TransactionLoaderView<Destination: View>: View {
                         LoaderStep(label: "Confirmando en Base Network", isDone: isDone(.confirming), isCurrent: isCurrent(.confirming))
                     }
                     .padding(16)
-                    .background(Color.surfaceGray)
+                    .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
@@ -47,20 +47,20 @@ struct TransactionLoaderView<Destination: View>: View {
                 VStack(spacing: 20) {
                     ZStack {
                         Circle()
-                            .fill(Color.green.opacity(0.12))
+                            .fill(Color.success.opacity(0.12))
                             .frame(width: 100, height: 100)
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 60))
-                            .foregroundStyle(.green)
+                            .foregroundStyle(.success)
                             .transition(.scale.combined(with: .opacity))
                     }
                     .transition(.scale)
 
                     VStack(spacing: 8) {
                         Text(successTitle)
-                            .font(.sunTitle)
+                            .font(.dsTitle)
                         Text(successSubtitle)
-                            .font(.sunCaption)
+                            .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                             .multilineTextAlignment(.center)
                     }
@@ -73,13 +73,13 @@ struct TransactionLoaderView<Destination: View>: View {
                         HStack(spacing: 6) {
                             Text("\(hash.prefix(8))...\(hash.suffix(6))")
                                 .font(.caption.monospaced())
-                                .foregroundStyle(.chainIndigo)
+                                .foregroundStyle(.chain500)
                             Button {
                                 UIPasteboard.general.string = hash
                             } label: {
                                 Image(systemName: "doc.on.doc")
                                     .font(.caption)
-                                    .foregroundStyle(.chainIndigo)
+                                    .foregroundStyle(.chain500)
                             }
                             .accessibilityLabel("Copiar código de verificación")
                         }
@@ -89,13 +89,13 @@ struct TransactionLoaderView<Destination: View>: View {
                             }
                         } label: {
                             Label("Ver en Basescan", systemImage: "arrow.up.right.square")
-                                .font(.sunCaption.weight(.semibold))
-                                .foregroundStyle(.chainIndigo)
+                                .font(.dsCaption.weight(.semibold))
+                                .foregroundStyle(.chain500)
                         }
                         .accessibilityLabel("Ver transacción en Basescan")
                     }
                     .padding(16)
-                    .background(Color.chainIndigo.opacity(0.06))
+                    .background(Color.chain500.opacity(0.06))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     Button {
@@ -103,11 +103,11 @@ struct TransactionLoaderView<Destination: View>: View {
                         navigateAway = true
                     } label: {
                         Text("Continuar")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.sunOrange)
+                            .background(Color.secondary500)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                 }
@@ -117,22 +117,22 @@ struct TransactionLoaderView<Destination: View>: View {
                 VStack(spacing: 16) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 60))
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.danger)
                     Text("Error en la transacción")
-                        .font(.sunTitle)
+                        .font(.dsTitle)
                     Text(message)
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                         .multilineTextAlignment(.center)
                     Button {
                         appState.resetTransaction()
                     } label: {
                         Text("Reintentar")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.sunOrange)
+                            .background(Color.secondary500)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                 }
@@ -170,7 +170,7 @@ struct LoaderStep: View {
         HStack(spacing: 10) {
             ZStack {
                 Circle()
-                    .fill(isDone ? Color.green : isCurrent ? Color.chainIndigo : Color.gray.opacity(0.2))
+                    .fill(isDone ? Color.success : isCurrent ? Color.chain500 : Color.gray.opacity(0.2))
                     .frame(width: 20, height: 20)
                 if isDone {
                     Image(systemName: "checkmark")
@@ -183,8 +183,8 @@ struct LoaderStep: View {
                 }
             }
             Text(label)
-                .font(.sunCaption)
-                .foregroundStyle(isCurrent ? .textPrimary : isDone ? .green : .textSecondary)
+                .font(.dsCaption)
+                .foregroundStyle(isCurrent ? .textPrimary : isDone ? .success : .textSecondary)
             Spacer()
         }
         .accessibilityLabel("\(label): \(isDone ? "completado" : isCurrent ? "en progreso" : "pendiente")")

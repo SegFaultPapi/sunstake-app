@@ -13,9 +13,9 @@ struct ProjectDetailView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(project.ciudad), \(project.estado)")
-                                .font(.sunTitle)
+                                .font(.dsTitle)
                             Text("Beneficiario: \(project.beneficiario)")
-                                .font(.sunCaption)
+                                .font(.dsCaption)
                                 .foregroundStyle(.textSecondary)
                         }
                         Spacer()
@@ -26,11 +26,11 @@ struct ProjectDetailView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text("Financiamiento")
-                                .font(.sunCaption)
+                                .font(.dsCaption)
                                 .foregroundStyle(.textSecondary)
                             Spacer()
                             Text("\(Int(project.porcentajeFinanciado * 100))% · $\(Int(project.montoTotalUSD * project.porcentajeFinanciado)) de $\(Int(project.montoTotalUSD)) USD")
-                                .font(.sunCaption.weight(.semibold))
+                                .font(.dsCaption.weight(.semibold))
                         }
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
@@ -41,7 +41,7 @@ struct ProjectDetailView: View {
                                     .fill(
                                         project.porcentajeFinanciado >= 1.0
                                         ? AnyShapeStyle(Color.gray)
-                                        : AnyShapeStyle(LinearGradient(colors: [.chainIndigo, .chainIndigo.opacity(0.7)],
+                                        : AnyShapeStyle(LinearGradient(colors: [.chain500, .chain500.opacity(0.7)],
                                                          startPoint: .leading, endPoint: .trailing))
                                     )
                                     .frame(width: geo.size.width * project.porcentajeFinanciado, height: 8)
@@ -52,7 +52,7 @@ struct ProjectDetailView: View {
                     }
                 }
                 .padding(20)
-                .background(Color.surfaceGray)
+                .background(Color.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 // Returns
@@ -65,14 +65,14 @@ struct ProjectDetailView: View {
                     Divider().padding(.horizontal)
                     ReturnRow(label: "Inversión mínima", value: "$\(Int(project.montoMinUSD)) USD")
                 }
-                .background(Color.surfaceGray)
+                .background(Color.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 // Environmental impact — HCAI: tangible impact for Carlos
                 VStack(alignment: .leading, spacing: 12) {
                     Label("Impacto ambiental medible", systemImage: "leaf.fill")
-                        .font(.sunHeading)
-                        .foregroundStyle(.green)
+                        .font(.dsHeading)
+                        .foregroundStyle(.success)
                     HStack(spacing: 0) {
                         ImpactStat(
                             icon: "wind",
@@ -97,7 +97,7 @@ struct ProjectDetailView: View {
                     }
                 }
                 .padding(16)
-                .background(Color.green.opacity(0.06))
+                .background(Color.success.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: 14))
 
                 // Contract — HCAI: verifiable trust
@@ -118,21 +118,21 @@ struct ProjectDetailView: View {
                         showPurchase = true
                     } label: {
                         Text("Invertir en este proyecto")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.chainIndigo)
+                            .background(Color.chain500)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                     .accessibilityLabel("Invertir en proyecto de \(project.ciudad). Mínimo $\(Int(project.montoMinUSD)) USD.")
                 } else {
                     Label("Este proyecto está cerrado", systemImage: "lock.fill")
-                        .font(.sunHeading)
+                        .font(.dsHeading)
                         .foregroundStyle(.textSecondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.surfaceGray)
+                        .background(Color.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
             }
@@ -154,12 +154,12 @@ struct ReturnRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.sunCaption)
+                .font(.dsCaption)
                 .foregroundStyle(.textSecondary)
             Spacer()
             Text(value)
-                .font(accent ? .system(.title3, design: .rounded, weight: .bold) : .sunCaption.weight(.semibold))
-                .foregroundStyle(accent ? .chainIndigo : .textPrimary)
+                .font(accent ? .system(.title3, design: .rounded, weight: .bold) : .dsCaption.weight(.semibold))
+                .foregroundStyle(accent ? .chain500 : .textPrimary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -176,12 +176,12 @@ struct ImpactStat: View {
         VStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(.green)
+                .foregroundStyle(.success)
             Text(value)
                 .font(.system(.body, design: .rounded, weight: .bold))
             Text(unit)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.green)
+                .foregroundStyle(.success)
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.textSecondary)
@@ -201,18 +201,18 @@ struct InvestmentEstimatorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Estima tu rendimiento")
-                .font(.sunHeading)
+                .font(.dsHeading)
 
             Slider(value: $amount, in: 1...500, step: 1)
-                .tint(.chainIndigo)
+                .tint(.chain500)
                 .accessibilityLabel("Monto de inversión: \(Int(amount)) dólares")
 
             HStack {
                 Text("Monto: $\(Int(amount)) USD")
-                    .font(.sunCaption.weight(.semibold))
+                    .font(.dsCaption.weight(.semibold))
                 Spacer()
                 Text("\(tokens) fracciones")
-                    .font(.sunCaption)
+                    .font(.dsCaption)
                     .foregroundStyle(.textSecondary)
             }
 
@@ -223,7 +223,7 @@ struct InvestmentEstimatorView: View {
                 Divider().frame(height: 30)
                 EstimateChip(label: "Tasa", value: "\(String(format: "%.1f", project.rendimientoAnualPct))%")
             }
-            .background(Color.surfaceGray)
+            .background(Color.surface)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             Text("Estimación basada en historial de pagos. No garantizada.")
@@ -231,7 +231,7 @@ struct InvestmentEstimatorView: View {
                 .foregroundStyle(.textSecondary)
         }
         .padding(16)
-        .background(Color.chainIndigo.opacity(0.05))
+        .background(Color.chain500.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
@@ -243,8 +243,8 @@ struct EstimateChip: View {
     var body: some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.sunCaption.weight(.bold))
-                .foregroundStyle(.chainIndigo)
+                .font(.dsCaption.weight(.bold))
+                .foregroundStyle(.chain500)
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.textSecondary)
@@ -262,7 +262,7 @@ struct StatusBadge: View {
         case .open:
             Label("Abierto", systemImage: "circle.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.green)
+                .foregroundStyle(.success)
         case .funded:
             Label("Cerrado", systemImage: "lock.fill")
                 .font(.caption.weight(.semibold))
@@ -270,7 +270,7 @@ struct StatusBadge: View {
         case .completed:
             Label("Completado", systemImage: "checkmark.circle.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.chainIndigo)
+                .foregroundStyle(.chain500)
         }
     }
 }

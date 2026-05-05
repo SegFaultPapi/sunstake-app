@@ -57,7 +57,7 @@ struct ProjectExplorerView: View {
                             .font(.system(size: 48))
                             .foregroundStyle(.textSecondary)
                         Text("No hay proyectos con esos filtros")
-                            .font(.sunBody)
+                            .font(.dsBody)
                             .foregroundStyle(.textSecondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -83,7 +83,7 @@ struct ProjectExplorerView: View {
                                 )
                             }
                             .padding(14)
-                            .background(Color.green.opacity(0.06))
+                            .background(Color.success.opacity(0.06))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
@@ -120,11 +120,11 @@ struct FilterChip: View {
                         .font(.caption2)
                 }
                 Text(label)
-                    .font(.sunCaption.weight(.medium))
+                    .font(.dsCaption.weight(.medium))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(isSelected ? Color.chainIndigo : Color.surfaceGray)
+            .background(isSelected ? Color.chain500 : Color.surface)
             .foregroundStyle(isSelected ? .white : .textPrimary)
             .clipShape(Capsule())
         }
@@ -141,9 +141,9 @@ struct MiniImpactStat: View {
         VStack(spacing: 2) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(.green)
+                .foregroundStyle(.success)
             Text(value)
-                .font(.sunCaption.weight(.bold))
+                .font(.dsCaption.weight(.bold))
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.textSecondary)

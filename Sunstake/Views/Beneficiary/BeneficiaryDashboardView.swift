@@ -34,7 +34,7 @@ struct BeneficiaryDashboardView: View {
                                 value: "$\(Int(Double(project.mesesPagados) * (appState.quotaResult?.ahorroEstimadoMXN ?? 380))) MXN"
                             )
                         }
-                        .background(Color.surfaceGray)
+                        .background(Color.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
@@ -43,14 +43,14 @@ struct BeneficiaryDashboardView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Próximo pago")
-                                    .font(.sunCaption)
+                                    .font(.dsCaption)
                                     .foregroundStyle(.textSecondary)
                                 Text("15 de junio · $\(Int(appState.quotaResult?.cuotaMXN ?? 850)) MXN")
-                                    .font(.sunHeading)
+                                    .font(.dsHeading)
                             }
                             Spacer()
                             Image(systemName: "clock.fill")
-                                .foregroundStyle(.sunOrange)
+                                .foregroundStyle(.secondary500)
                         }
 
                         Button {
@@ -59,25 +59,25 @@ struct BeneficiaryDashboardView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "faceid")
                                 Text("Pagar cuota de junio")
-                                    .font(.sunHeading)
+                                    .font(.dsHeading)
                             }
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color.sunOrange)
+                            .background(Color.secondary500)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .accessibilityLabel("Pagar cuota mensual de junio. Requiere Face ID.")
                     }
                     .padding(16)
-                    .background(Color.surfaceGray)
+                    .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                     // Panel info
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Tu panel solar", systemImage: "sun.max.fill")
-                            .font(.sunHeading)
-                            .foregroundStyle(.sunOrange)
+                            .font(.dsHeading)
+                            .foregroundStyle(.secondary500)
 
                         HStack(spacing: 16) {
                             PanelStat(icon: "location.fill", label: "Ubicación", value: "Guadalajara, JAL")
@@ -86,7 +86,7 @@ struct BeneficiaryDashboardView: View {
                         }
                     }
                     .padding(16)
-                    .background(Color.sunYellow.opacity(0.08))
+                    .background(Color.primary500.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                     // Contract transparency — HCAI verifiable trust
@@ -99,7 +99,7 @@ struct BeneficiaryDashboardView: View {
                     // Payment history
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Historial de pagos")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                         ForEach(appState.paymentHistory) { payment in
                             PaymentRow(payment: payment)
                         }
@@ -143,9 +143,9 @@ struct StatChip: View {
         VStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(.sunOrange)
+                .foregroundStyle(.secondary500)
             Text(value)
-                .font(.sunCaption.weight(.semibold))
+                .font(.dsCaption.weight(.semibold))
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.textSecondary)
@@ -163,7 +163,7 @@ struct PanelStat: View {
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .foregroundStyle(.sunOrange)
+                .foregroundStyle(.secondary500)
                 .font(.caption)
             Text(value)
                 .font(.caption.weight(.semibold))
@@ -183,14 +183,14 @@ struct PaymentRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(payment.fecha, style: .date)
-                    .font(.sunCaption.weight(.medium))
+                    .font(.dsCaption.weight(.medium))
                 Text("$\(String(format: "%.2f", payment.montoUSDC)) USDC")
                     .font(.caption2)
                     .foregroundStyle(.textSecondary)
             }
             Spacer()
             Text("$\(Int(payment.montoMXN)) MXN")
-                .font(.sunCaption.weight(.semibold))
+                .font(.dsCaption.weight(.semibold))
 
             Button {
                 if let url = URL(string: "https://sepolia.basescan.org/tx/\(payment.txHash)") {
@@ -203,7 +203,7 @@ struct PaymentRow: View {
                     Image(systemName: "arrow.up.right.square")
                         .font(.caption2)
                 }
-                .foregroundStyle(.chainIndigo)
+                .foregroundStyle(.chain500)
             }
             .accessibilityLabel("Ver transacción \(payment.txHashCorto) en Basescan")
         }

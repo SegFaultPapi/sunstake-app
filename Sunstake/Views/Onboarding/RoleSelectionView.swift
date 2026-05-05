@@ -8,11 +8,11 @@ struct RoleSelectionView: View {
             VStack(spacing: 8) {
                 Image(systemName: "sun.max.fill")
                     .font(.system(size: 40))
-                    .foregroundStyle(.sunYellow)
+                    .foregroundStyle(.primary500)
                 Text("Sunstake")
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
                 Text("¿Cómo quieres usar Sunstake?")
-                    .font(.sunBody)
+                    .font(.dsBody)
                     .foregroundStyle(.textSecondary)
             }
             .padding(.top, 60)
@@ -21,14 +21,14 @@ struct RoleSelectionView: View {
             VStack(spacing: 16) {
                 RoleCard(
                     icon: "house.fill",
-                    iconColor: .sunOrange,
+                    iconColor: .secondary500,
                     title: "Quiero paneles solares",
                     subtitle: "Paga cómodas cuotas mensuales y adquiere tu panel poco a poco. La IA calcula tu cuota ideal.",
                     role: .beneficiary
                 )
                 RoleCard(
                     icon: "bolt.circle.fill",
-                    iconColor: .chainIndigo,
+                    iconColor: .chain500,
                     title: "Quiero invertir",
                     subtitle: "Compra fracciones de proyectos solares desde $1 USD y recibe rendimiento mensual verificado.",
                     role: .investor
@@ -39,7 +39,7 @@ struct RoleSelectionView: View {
             Spacer()
 
             Text("Puedes cambiar tu rol después en Configuración")
-                .font(.sunCaption)
+                .font(.dsCaption)
                 .foregroundStyle(.textSecondary)
                 .padding(.bottom, 32)
         }
@@ -71,10 +71,10 @@ struct RoleCard: View {
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.sunHeading)
+                        .font(.dsHeading)
                         .foregroundStyle(.textPrimary)
                     Text(subtitle)
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                         .multilineTextAlignment(.leading)
                 }
@@ -84,7 +84,7 @@ struct RoleCard: View {
                     .foregroundStyle(.textSecondary)
             }
             .padding(20)
-            .background(Color.surfaceGray)
+            .background(Color.surface)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)

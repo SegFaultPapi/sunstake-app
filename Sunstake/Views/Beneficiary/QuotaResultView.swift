@@ -23,18 +23,18 @@ struct QuotaResultView: View {
                 // Main quota card
                 VStack(spacing: 4) {
                     Text("Tu cuota mensual")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                     Text("$\(Int(adjustedResult.cuotaMXN)) MXN/mes")
                         .font(.system(size: 42, weight: .bold, design: .rounded))
-                        .foregroundStyle(.sunOrange)
+                        .foregroundStyle(.secondary500)
                     Text("≈ $\(String(format: "%.2f", adjustedResult.cuotaUSDC)) USDC")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(24)
-                .background(Color.surfaceGray)
+                .background(Color.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 // HCAI: 4-variable breakdown
@@ -43,37 +43,37 @@ struct QuotaResultView: View {
                 // HCAI: Natural language explanation (Foundation Models placeholder)
                 VStack(alignment: .leading, spacing: 8) {
                     Label("Explicación en lenguaje natural", systemImage: "sparkles")
-                        .font(.sunCaption.weight(.semibold))
-                        .foregroundStyle(.chainIndigo)
+                        .font(.dsCaption.weight(.semibold))
+                        .foregroundStyle(.chain500)
                     Text(adjustedResult.explicacion)
-                        .font(.sunBody)
+                        .font(.dsBody)
                         .foregroundStyle(.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(16)
-                .background(Color.chainIndigo.opacity(0.06))
+                .background(Color.chain500.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 // HCAI: Override — user control, always visible, never blockable
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: "slider.horizontal.3")
-                            .foregroundStyle(.sunOrange)
+                            .foregroundStyle(.secondary500)
                         Text("Ajusta tu propuesta")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                         Spacer()
                         // HCAI badge
                         Text("Tú decides")
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.sunOrange)
+                            .foregroundStyle(.secondary500)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Color.sunOrange.opacity(0.1))
+                            .background(Color.secondary500.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
                     Text("Cambia el plazo y ve cómo cambia tu cuota al instante.")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
 
                     HStack(spacing: 0) {
@@ -84,7 +84,7 @@ struct QuotaResultView: View {
                             } label: {
                                 VStack(spacing: 2) {
                                     Text(term.label)
-                                        .font(.sunCaption.weight(.semibold))
+                                        .font(.dsCaption.weight(.semibold))
                                     if let cuota = cuotaForTerm(term) {
                                         Text("$\(Int(cuota))/mes")
                                             .font(.caption2)
@@ -93,37 +93,37 @@ struct QuotaResultView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
-                                .background(selectedTerm == term ? Color.sunOrange : Color.clear)
+                                .background(selectedTerm == term ? Color.secondary500 : Color.clear)
                                 .foregroundStyle(selectedTerm == term ? .white : .textPrimary)
                             }
                             .accessibilityLabel("Plazo \(term.label)\(selectedTerm == term ? ", seleccionado" : "")")
                         }
                     }
-                    .background(Color.surfaceGray)
+                    .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(16)
-                .background(Color.sunOrange.opacity(0.04))
+                .background(Color.secondary500.opacity(0.04))
                 .clipShape(RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.sunOrange.opacity(0.2), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.secondary500.opacity(0.2), lineWidth: 1))
 
                 // Savings estimate
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Ahorro estimado mensual")
-                            .font(.sunCaption)
+                            .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                         Text("$\(Int(adjustedResult.ahorroEstimadoMXN)) MXN/mes vs. CFE")
-                            .font(.sunHeading)
-                            .foregroundStyle(.green)
+                            .font(.dsHeading)
+                            .foregroundStyle(.success)
                     }
                     Spacer()
                     Image(systemName: "arrow.down.circle.fill")
                         .font(.system(size: 32))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.success)
                 }
                 .padding(16)
-                .background(Color.green.opacity(0.06))
+                .background(Color.success.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 // CTAs
@@ -132,11 +132,11 @@ struct QuotaResultView: View {
                         showSummary = true
                     } label: {
                         Text("Publicar mi proyecto")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.sunOrange)
+                            .background(Color.secondary500)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                     .accessibilityLabel("Publicar proyecto en blockchain. Requiere confirmación con Face ID.")

@@ -15,7 +15,7 @@ struct ConfidenceBarView: View {
                         .font(.body)
 
                     Text("Confianza del cálculo: \(level.rawValue)")
-                        .font(.sunCaption.weight(.semibold))
+                        .font(.dsCaption.weight(.semibold))
                         .foregroundStyle(level.color)
 
                     Spacer()
@@ -37,7 +37,7 @@ struct ConfidenceBarView: View {
 
                 if expanded {
                     Text(level.detail)
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }

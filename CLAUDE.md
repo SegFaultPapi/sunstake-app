@@ -282,3 +282,7 @@ iOS 16 minimum target. All Foundation Models usage must be wrapped in `#availabl
 | 3 | HCAI polish: Foundation Models text, confidence bar, contract view, VoiceOver, loaders | 11 SP |
 | 4 | Notifications, onboarding screens, CSV export, dark mode test | 11 SP |
 | 5 | Demo prep: seed Sepolia with 3–5 projects, simulate 2 payment cycles, pitch rehearsal | — |
+
+## When inserting new code
+
+It is really important that, for feature you develop/update, you use the defined color in Sunstake/DesignSystem/ColorPalette.swift, do NOT create new colors, not even in the specified file, not even hard coded. Just use the one defined there.

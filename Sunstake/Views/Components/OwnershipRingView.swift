@@ -20,7 +20,7 @@ struct OwnershipRingView: View {
                     .trim(from: 0, to: animatedPct)
                     .stroke(
                         AngularGradient(
-                            colors: [Color.sunYellow, Color.sunOrange],
+                            colors: [Color.primary500, Color.secondary500],
                             center: .center,
                             startAngle: .degrees(-90),
                             endAngle: .degrees(270)
@@ -38,19 +38,19 @@ struct OwnershipRingView: View {
                         .foregroundStyle(.textPrimary)
                         .contentTransition(.numericText())
                     Text("tuyo")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                 }
             }
             .accessibilityLabel("Propiedad del panel: \(Int(percentage * 100))%. \(mesesPagados) de \(plazoTotal) meses pagados.")
 
             Text("\(mesesPagados) de \(plazoTotal) meses pagados")
-                .font(.sunCaption)
+                .font(.dsCaption)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
-        .background(Color.surfaceGray)
+        .background(Color.surface)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .onAppear {
             animatedPct = percentage

@@ -14,9 +14,9 @@ enum ConfidenceLevel: String {
 
     var color: Color {
         switch self {
-        case .alta: return .green
-        case .media: return Color.orange
-        case .baja: return .red
+        case .alta: return .success
+        case .media: return .warning
+        case .baja: return .danger
         }
     }
     var icon: String {

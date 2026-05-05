@@ -42,11 +42,11 @@ struct PurchaseFlowView: View {
                             withAnimation { currentStep += 1 }
                         } label: {
                             Text("Continuar")
-                                .font(.sunHeading)
+                                .font(.dsHeading)
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(Color.chainIndigo)
+                                .background(Color.chain500)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                     } else {
@@ -58,12 +58,12 @@ struct PurchaseFlowView: View {
                                 Image(systemName: "faceid")
                                     .font(.title3)
                                 Text("Confirmar con Face ID")
-                                    .font(.sunHeading)
+                                    .font(.dsHeading)
                             }
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.chainIndigo)
+                            .background(Color.chain500)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .accessibilityLabel("Confirmar inversión de \(Int(amount)) dólares con Face ID")
@@ -74,7 +74,7 @@ struct PurchaseFlowView: View {
                             withAnimation { currentStep -= 1 }
                         } label: {
                             Text("Volver")
-                                .font(.sunCaption.weight(.medium))
+                                .font(.dsCaption.weight(.medium))
                                 .foregroundStyle(.textSecondary)
                         }
                     }
@@ -108,9 +108,9 @@ struct PurchaseFlowView: View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Paso 1 — Elige tu monto")
-                    .font(.sunTitle)
+                    .font(.dsTitle)
                 Text("\(project.ciudad), \(project.estado) · \(String(format: "%.1f", project.rendimientoAnualPct))% anual")
-                    .font(.sunCaption)
+                    .font(.dsCaption)
                     .foregroundStyle(.textSecondary)
             }
 
@@ -118,10 +118,10 @@ struct PurchaseFlowView: View {
             VStack(spacing: 4) {
                 Text("$\(Int(amount)) USDC")
                     .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(.chainIndigo)
+                    .foregroundStyle(.chain500)
                     .contentTransition(.numericText())
                 Text("\(tokens) fracciones del proyecto")
-                    .font(.sunCaption)
+                    .font(.dsCaption)
                     .foregroundStyle(.textSecondary)
             }
             .frame(maxWidth: .infinity)
@@ -129,7 +129,7 @@ struct PurchaseFlowView: View {
             // Slider
             VStack(spacing: 8) {
                 Slider(value: $amount, in: 1...500, step: 1)
-                    .tint(.chainIndigo)
+                    .tint(.chain500)
                     .animation(.easeInOut(duration: 0.1), value: amount)
                     .accessibilityLabel("Monto de inversión: \(Int(amount)) dólares")
 
@@ -151,10 +151,10 @@ struct PurchaseFlowView: View {
                         withAnimation { amount = Double(val) }
                     } label: {
                         Text("$\(val)")
-                            .font(.sunCaption.weight(.semibold))
+                            .font(.dsCaption.weight(.semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Int(amount) == val ? Color.chainIndigo : Color.surfaceGray)
+                            .background(Int(amount) == val ? Color.chain500 : Color.surface)
                             .foregroundStyle(Int(amount) == val ? .white : .textPrimary)
                             .clipShape(Capsule())
                     }
@@ -170,11 +170,11 @@ struct PurchaseFlowView: View {
                 Divider().frame(height: 40)
                 YieldPreviewChip(label: "Tasa\nanual", value: "\(String(format: "%.1f", project.rendimientoAnualPct))%")
             }
-            .background(Color.surfaceGray)
+            .background(Color.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
 
             Text("Tu balance actual: $124.50 USDC disponibles")
-                .font(.sunCaption)
+                .font(.dsCaption)
                 .foregroundStyle(.textSecondary)
         }
     }
@@ -184,9 +184,9 @@ struct PurchaseFlowView: View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Paso 2 — Revisa los detalles")
-                    .font(.sunTitle)
+                    .font(.dsTitle)
                 Text("Verifica todo antes de confirmar. Paso 3 requiere Face ID.")
-                    .font(.sunCaption)
+                    .font(.dsCaption)
                     .foregroundStyle(.textSecondary)
             }
 
@@ -206,7 +206,7 @@ struct PurchaseFlowView: View {
                 Divider().padding(.horizontal)
                 SummaryRow(label: "Total a pagar", value: "$\(String(format: "%.2f", amount + gasFeeUSD)) USDC")
             }
-            .background(Color.surfaceGray)
+            .background(Color.surface)
             .clipShape(RoundedRectangle(cornerRadius: 16))
 
             // Contract info — HCAI: verifiable trust
@@ -219,17 +219,17 @@ struct PurchaseFlowView: View {
             // HCAI: no surprise fees notice
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: "checkmark.shield.fill")
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.success)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Sin costos ocultos")
-                        .font(.sunCaption.weight(.semibold))
+                        .font(.dsCaption.weight(.semibold))
                     Text("El costo de procesamiento ($\(String(format: "%.2f", gasFeeUSD)) USD) es el único cargo adicional al monto invertido.")
                         .font(.caption2)
                         .foregroundStyle(.textSecondary)
                 }
             }
             .padding(12)
-            .background(Color.green.opacity(0.06))
+            .background(Color.success.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -243,7 +243,7 @@ struct StepIndicator: View {
         HStack(spacing: 0) {
             ForEach(1...total, id: \.self) { step in
                 Circle()
-                    .fill(step <= current ? Color.chainIndigo : Color.gray.opacity(0.25))
+                    .fill(step <= current ? Color.chain500 : Color.gray.opacity(0.25))
                     .frame(width: 28, height: 28)
                     .overlay(
                         Group {
@@ -262,7 +262,7 @@ struct StepIndicator: View {
 
                 if step < total {
                     Rectangle()
-                        .fill(step < current ? Color.chainIndigo : Color.gray.opacity(0.25))
+                        .fill(step < current ? Color.chain500 : Color.gray.opacity(0.25))
                         .frame(height: 2)
                 }
             }
@@ -277,8 +277,8 @@ struct YieldPreviewChip: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.sunCaption.weight(.bold))
-                .foregroundStyle(.chainIndigo)
+                .font(.dsCaption.weight(.bold))
+                .foregroundStyle(.chain500)
                 .contentTransition(.numericText())
             Text(label)
                 .font(.caption2)

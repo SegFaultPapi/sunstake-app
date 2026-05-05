@@ -19,13 +19,13 @@ struct YieldHistoryView: View {
                     VStack(spacing: 16) {
                         VStack(spacing: 4) {
                             Text("Rendimiento total acumulado")
-                                .font(.sunCaption)
+                                .font(.dsCaption)
                                 .foregroundStyle(.textSecondary)
                             Text("$\(String(format: "%.2f", totalUSDC)) USDC")
                                 .font(.system(size: 38, weight: .bold, design: .rounded))
-                                .foregroundStyle(.chainIndigo)
+                                .foregroundStyle(.chain500)
                             Text("≈ $\(Int(totalMXN)) MXN")
-                                .font(.sunCaption)
+                                .font(.dsCaption)
                                 .foregroundStyle(.textSecondary)
                         }
                         .frame(maxWidth: .infinity)
@@ -48,19 +48,19 @@ struct YieldHistoryView: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.surfaceGray)
+                    .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                     // Active investments
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Mis inversiones activas")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
 
                         ForEach(appState.investedProjects) { project in
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("\(project.ciudad), \(project.estado)")
-                                        .font(.sunCaption.weight(.semibold))
+                                        .font(.dsCaption.weight(.semibold))
                                     Text("\(project.mesesRestantes) meses restantes · \(String(format: "%.1f", project.rendimientoAnualPct))% anual")
                                         .font(.caption2)
                                         .foregroundStyle(.textSecondary)
@@ -68,15 +68,15 @@ struct YieldHistoryView: View {
                                 Spacer()
                                 VStack(alignment: .trailing, spacing: 2) {
                                     Text("$\(String(format: "%.2f", 50 * project.rendimientoMensualPct)) USD/mes")
-                                        .font(.sunCaption.weight(.bold))
-                                        .foregroundStyle(.chainIndigo)
+                                        .font(.dsCaption.weight(.bold))
+                                        .foregroundStyle(.chain500)
                                     Text("rendimiento est.")
                                         .font(.caption2)
                                         .foregroundStyle(.textSecondary)
                                 }
                             }
                             .padding(14)
-                            .background(Color.surfaceGray)
+                            .background(Color.surface)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     }
@@ -85,14 +85,14 @@ struct YieldHistoryView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Text("Historial de rendimientos")
-                                .font(.sunHeading)
+                                .font(.dsHeading)
                             Spacer()
                             Button {
                                 exportCSV()
                             } label: {
                                 Label("Exportar", systemImage: "square.and.arrow.up")
-                                    .font(.sunCaption)
-                                    .foregroundStyle(.chainIndigo)
+                                    .font(.dsCaption)
+                                    .foregroundStyle(.chain500)
                             }
                             .accessibilityLabel("Exportar historial como CSV para declaración fiscal")
                         }
@@ -105,13 +105,13 @@ struct YieldHistoryView: View {
                     // HCAI: transparency notice
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "info.circle.fill")
-                            .foregroundStyle(.chainIndigo)
+                            .foregroundStyle(.chain500)
                         Text("Cada rendimiento está verificado en blockchain. Toca el código de verificación para confirmarlo tú mismo en Basescan.")
                             .font(.caption2)
                             .foregroundStyle(.textSecondary)
                     }
                     .padding(12)
-                    .background(Color.chainIndigo.opacity(0.05))
+                    .background(Color.chain500.opacity(0.05))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .padding(24)
@@ -141,7 +141,7 @@ struct YieldEntryRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(entry.proyecto)
-                        .font(.sunCaption.weight(.medium))
+                        .font(.dsCaption.weight(.medium))
                     Text(entry.fecha, style: .date)
                         .font(.caption2)
                         .foregroundStyle(.textSecondary)
@@ -149,8 +149,8 @@ struct YieldEntryRow: View {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("+$\(String(format: "%.2f", entry.montoUSDC)) USDC")
-                        .font(.sunCaption.weight(.bold))
-                        .foregroundStyle(.green)
+                        .font(.dsCaption.weight(.bold))
+                        .foregroundStyle(.success)
                     Text("≈ $\(Int(entry.montoMXN)) MXN")
                         .font(.caption2)
                         .foregroundStyle(.textSecondary)
@@ -159,7 +159,7 @@ struct YieldEntryRow: View {
             HStack {
                 Image(systemName: "link.circle")
                     .font(.caption2)
-                    .foregroundStyle(.chainIndigo)
+                    .foregroundStyle(.chain500)
                 Button {
                     if let url = URL(string: "https://sepolia.basescan.org/tx/\(entry.txHash)") {
                         UIApplication.shared.open(url)
@@ -173,7 +173,7 @@ struct YieldEntryRow: View {
                         Image(systemName: "arrow.up.right")
                             .font(.caption2)
                     }
-                    .foregroundStyle(.chainIndigo)
+                    .foregroundStyle(.chain500)
                 }
                 .accessibilityLabel("Ver transacción \(entry.txHashCorto) en Basescan")
                 Spacer()
@@ -191,8 +191,8 @@ struct YieldSummaryChip: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.sunCaption.weight(.bold))
-                .foregroundStyle(.chainIndigo)
+                .font(.dsCaption.weight(.bold))
+                .foregroundStyle(.chain500)
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.textSecondary)

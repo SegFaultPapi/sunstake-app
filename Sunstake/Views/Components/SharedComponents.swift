@@ -23,17 +23,17 @@ struct BiometricConfirmationSheet: View {
             VStack(spacing: 16) {
                 ZStack {
                     Circle()
-                        .fill(Color.sunOrange.opacity(0.1))
+                        .fill(Color.secondary500.opacity(0.1))
                         .frame(width: 90, height: 90)
                     Image(systemName: "faceid")
                         .font(.system(size: 44))
-                        .foregroundStyle(.sunOrange)
+                        .foregroundStyle(.secondary500)
                 }
                 VStack(spacing: 6) {
                     Text(title)
-                        .font(.sunTitle)
+                        .font(.dsTitle)
                     Text(subtitle)
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
@@ -43,14 +43,14 @@ struct BiometricConfirmationSheet: View {
             // HCAI: responsible design — explicit biometric notice
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "lock.shield.fill")
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.success)
                     .font(.caption)
                 Text("Tu Face ID confirma esta operación. Ninguna transacción se realiza sin tu aprobación explícita.")
                     .font(.caption2)
                     .foregroundStyle(.textSecondary)
             }
             .padding(12)
-            .background(Color.green.opacity(0.06))
+            .background(Color.success.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 24)
 
@@ -72,12 +72,12 @@ struct BiometricConfirmationSheet: View {
                             Image(systemName: "faceid")
                         }
                         Text(isAuthenticating ? "Autenticando..." : "Confirmar con Face ID")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                     }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.sunOrange)
+                    .background(Color.secondary500)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .disabled(isAuthenticating)
@@ -86,7 +86,7 @@ struct BiometricConfirmationSheet: View {
                     dismiss()
                 } label: {
                     Text("Cancelar")
-                        .font(.sunCaption.weight(.medium))
+                        .font(.dsCaption.weight(.medium))
                         .foregroundStyle(.textSecondary)
                 }
             }
@@ -114,14 +114,14 @@ struct ContractInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Label("Contrato verificable", systemImage: "link.circle.fill")
-                .font(.sunCaption.weight(.semibold))
-                .foregroundStyle(.chainIndigo)
+                .font(.dsCaption.weight(.semibold))
+                .foregroundStyle(.chain500)
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(shortAddress)
                         .font(.caption.monospaced())
-                        .foregroundStyle(.chainIndigo)
+                        .foregroundStyle(.chain500)
                     Text("Red: \(network)")
                         .font(.caption2)
                         .foregroundStyle(.textSecondary)
@@ -135,7 +135,7 @@ struct ContractInfoView: View {
                     } label: {
                         Image(systemName: copied ? "checkmark" : "doc.on.doc")
                             .font(.caption)
-                            .foregroundStyle(.chainIndigo)
+                            .foregroundStyle(.chain500)
                     }
                     .accessibilityLabel(copied ? "Copiado" : "Copiar dirección del contrato")
 
@@ -146,15 +146,15 @@ struct ContractInfoView: View {
                     } label: {
                         Label("Basescan", systemImage: "arrow.up.right.square")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(.chainIndigo)
+                            .foregroundStyle(.chain500)
                     }
                     .accessibilityLabel("Ver contrato en Basescan")
                 }
             }
         }
         .padding(14)
-        .background(Color.chainIndigo.opacity(0.05))
+        .background(Color.chain500.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.chainIndigo.opacity(0.15), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.chain500.opacity(0.15), lineWidth: 1))
     }
 }

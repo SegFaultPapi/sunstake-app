@@ -8,14 +8,14 @@ struct HCAIBreakdownView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Por qué esta cuota", systemImage: "magnifyingglass")
-                    .font(.sunHeading)
+                    .font(.dsHeading)
                 Spacer()
                 Text("4 variables")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.textSecondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.surfaceGray)
+                    .background(Color.surface)
                     .clipShape(Capsule())
             }
 
@@ -31,7 +31,7 @@ struct HCAIBreakdownView: View {
                 BreakdownRow(
                     number: "2",
                     icon: "sun.max.fill",
-                    iconColor: .sunOrange,
+                    iconColor: .secondary500,
                     label: "Sol en tu zona",
                     value: "\(String(format: "%.1f", result.horasSol))h de sol/día",
                     source: "Fuente: NASA POWER API"
@@ -39,7 +39,7 @@ struct HCAIBreakdownView: View {
                 BreakdownRow(
                     number: "3",
                     icon: "square.fill",
-                    iconColor: .chainIndigo,
+                    iconColor: .chain500,
                     label: "Tamaño del panel",
                     value: result.tamanoPanel,
                     source: "Catálogo de instaladores"
@@ -47,7 +47,7 @@ struct HCAIBreakdownView: View {
                 BreakdownRow(
                     number: "4",
                     icon: "calendar",
-                    iconColor: .green,
+                    iconColor: .success,
                     label: "Plazo elegido",
                     value: "\(result.plazoMeses) meses",
                     source: "Seleccionado por ti"
@@ -58,11 +58,11 @@ struct HCAIBreakdownView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Cobertura de tu consumo CFE")
-                        .font(.sunCaption)
+                        .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                     Text("\(Int(result.coberturaPct))% de tu factura")
-                        .font(.sunHeading)
-                        .foregroundStyle(.green)
+                        .font(.dsHeading)
+                        .foregroundStyle(.success)
                 }
                 Spacer()
                 ZStack {
@@ -71,7 +71,7 @@ struct HCAIBreakdownView: View {
                         .frame(width: 48, height: 48)
                     Circle()
                         .trim(from: 0, to: result.coberturaPct / 100)
-                        .stroke(Color.green, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .stroke(Color.success, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .frame(width: 48, height: 48)
                     Text("\(Int(result.coberturaPct))%")
@@ -79,11 +79,11 @@ struct HCAIBreakdownView: View {
                 }
             }
             .padding(12)
-            .background(Color.green.opacity(0.06))
+            .background(Color.success.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding(16)
-        .background(Color.surfaceGray)
+        .background(Color.surface)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
@@ -108,7 +108,7 @@ struct BreakdownRow: View {
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.sunCaption)
+                    .font(.dsCaption)
                     .foregroundStyle(.textPrimary)
                 Text(source)
                     .font(.caption2)
@@ -116,7 +116,7 @@ struct BreakdownRow: View {
             }
             Spacer()
             Text(value)
-                .font(.sunCaption.weight(.bold))
+                .font(.dsCaption.weight(.bold))
                 .foregroundStyle(.textPrimary)
         }
         .padding(10)

@@ -39,7 +39,7 @@ struct BeneficiaryRootView: View {
                     Label("Cuenta", systemImage: "person.circle")
                 }
         }
-        .accentColor(.sunOrange)
+        .accentColor(.secondary500)
     }
 }
 
@@ -74,7 +74,7 @@ struct InvestorRootView: View {
                     Label("Cuenta", systemImage: "person.circle")
                 }
         }
-        .accentColor(.chainIndigo)
+        .accentColor(.chain500)
     }
 }
 
@@ -91,20 +91,20 @@ struct AccountView: View {
                         Label("Dirección wallet", systemImage: "wallet.pass")
                         Spacer()
                         Text("0x71a3...f9c2")
-                            .font(.sunCaption)
+                            .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                     }
                     HStack {
                         Label("Balance USDC", systemImage: "dollarsign.circle")
                         Spacer()
                         Text("$124.50 USDC")
-                            .font(.sunCaption.weight(.semibold))
-                            .foregroundStyle(.chainIndigo)
+                            .font(.dsCaption.weight(.semibold))
+                            .foregroundStyle(.chain500)
                     }
                 }
                 Section("Seguridad") {
                     Label("Face ID activo", systemImage: "faceid")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.success)
                     Label("Contraseña PIN", systemImage: "lock")
                 }
                 Section("Notificaciones") {

@@ -20,21 +20,21 @@ struct QuotaCalculatorView: View {
                     // Header
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Calcula tu cuota solar")
-                            .font(.sunTitle)
+                            .font(.dsTitle)
                         Text("La IA usa datos reales de NASA para calcular cuánto pagarías. Tú decides si te conviene.")
-                            .font(.sunCaption)
+                            .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                         // HCAI: transparencia de fuente
                         Label("Cálculo realizado en tu dispositivo · Fuente: NASA POWER API", systemImage: "cpu")
                             .font(.caption2)
-                            .foregroundStyle(.chainIndigo)
+                            .foregroundStyle(.chain500)
                             .padding(.top, 2)
                     }
 
                     // Input: Factura
                     VStack(alignment: .leading, spacing: 8) {
                         Text("¿Cuánto pagas de luz al mes?")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                         HStack {
                             Text("$")
                                 .foregroundStyle(.textSecondary)
@@ -45,7 +45,7 @@ struct QuotaCalculatorView: View {
                                 .foregroundStyle(.textSecondary)
                         }
                         .padding()
-                        .background(Color.surfaceGray)
+                        .background(Color.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .accessibilityLabel("Monto de factura mensual en pesos")
                     }
@@ -53,15 +53,15 @@ struct QuotaCalculatorView: View {
                     // Input: Ubicación
                     VStack(alignment: .leading, spacing: 8) {
                         Text("¿Dónde está tu casa?")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                         HStack {
                             Image(systemName: "location.fill")
-                                .foregroundStyle(.sunOrange)
+                                .foregroundStyle(.secondary500)
                             TextField("Ciudad o código postal", text: $ubicacion)
-                                .font(.sunBody)
+                                .font(.dsBody)
                         }
                         .padding()
-                        .background(Color.surfaceGray)
+                        .background(Color.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
 
                         // Quick location chips
@@ -72,10 +72,10 @@ struct QuotaCalculatorView: View {
                                         ubicacion = city
                                     } label: {
                                         Text(city)
-                                            .font(.sunCaption.weight(.medium))
+                                            .font(.dsCaption.weight(.medium))
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 6)
-                                            .background(ubicacion == city ? Color.sunOrange : Color.surfaceGray)
+                                            .background(ubicacion == city ? Color.secondary500 : Color.surface)
                                             .foregroundStyle(ubicacion == city ? .white : .textPrimary)
                                             .clipShape(Capsule())
                                     }
@@ -88,23 +88,23 @@ struct QuotaCalculatorView: View {
                     // Input: Plazo
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Plazo de pago")
-                            .font(.sunHeading)
+                            .font(.dsHeading)
                         HStack(spacing: 0) {
                             ForEach(PaymentTerm.allCases) { term in
                                 Button {
                                     selectedTerm = term
                                 } label: {
                                     Text(term.label)
-                                        .font(.sunCaption.weight(.semibold))
+                                        .font(.dsCaption.weight(.semibold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
-                                        .background(selectedTerm == term ? Color.sunOrange : Color.clear)
+                                        .background(selectedTerm == term ? Color.secondary500 : Color.clear)
                                         .foregroundStyle(selectedTerm == term ? .white : .textSecondary)
                                 }
                                 .accessibilityLabel("Plazo \(term.label)\(selectedTerm == term ? ", seleccionado" : "")")
                             }
                         }
-                        .background(Color.surfaceGray)
+                        .background(Color.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
 
                         Text("Plazos más largos = cuotas más bajas")
@@ -123,12 +123,12 @@ struct QuotaCalculatorView: View {
                                     .padding(.trailing, 4)
                             }
                             Text(isCalculating ? "Calculando..." : "Calcular mi cuota")
-                                .font(.sunHeading)
+                                .font(.dsHeading)
                         }
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(canCalculate ? Color.sunOrange : Color.gray.opacity(0.4))
+                        .background(canCalculate ? Color.secondary500 : Color.gray.opacity(0.4))
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                     .disabled(!canCalculate || isCalculating)
