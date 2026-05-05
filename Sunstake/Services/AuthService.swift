@@ -23,24 +23,31 @@ enum AuthError: LocalizedError {
 }
 
 actor AuthService {
+    private let privyClient: PrivyClient
+
+    init(privyClient: PrivyClient) {
+        self.privyClient = privyClient
+    }
+
     func sendOTP(to email: String) async throws {
         guard email.contains("@") else { throw AuthError.invalidEmail }
-        try await Task.sleep(nanoseconds: 350_000_000)
+        try await privyClient.sendEmailCode(to: email)
     }
 
     func loginWithOTP(email: String, otp: String) async throws -> AuthSession {
         guard email.contains("@") else { throw AuthError.invalidEmail }
         guard otp.count == 6 else { throw AuthError.invalidOTP }
-        try await Task.sleep(nanoseconds: 350_000_000)
+        try await privyClient.loginWithEmailCode(email: email, code: otp)
         let name = email.components(separatedBy: "@").first?.capitalized ?? "Usuario"
         return AuthSession(email: email, fullName: name)
     }
 
-    func register(name: String, email: String) async throws -> AuthSession {
+    func register(name: String, email: String, otp: String) async throws -> AuthSession {
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanName.isEmpty else { throw AuthError.invalidName }
         guard email.contains("@") else { throw AuthError.invalidEmail }
-        try await Task.sleep(nanoseconds: 350_000_000)
+        guard otp.count == 6 else { throw AuthError.invalidOTP }
+        try await privyClient.loginWithEmailCode(email: email, code: otp)
         return AuthSession(email: email, fullName: cleanName)
     }
 }

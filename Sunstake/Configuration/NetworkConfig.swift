@@ -16,7 +16,7 @@ struct NetworkConfig {
     let factoryAddress: String
     let isTestnet: Bool
 
-    static let baseSepolia = NetworkConfig(
+    nonisolated(unsafe) static let baseSepolia = NetworkConfig(
         environment: .baseSepolia,
         chainId: 84_532,
         chainHex: "0x14a34",

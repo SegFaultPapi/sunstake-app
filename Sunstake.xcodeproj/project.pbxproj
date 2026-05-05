@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		417A67BE2FAA3E280020A6F5 /* Privy in Frameworks */ = {isa = PBXBuildFile; productRef = 417A67BD2FAA3E280020A6F5 /* Privy */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		41AF83902FA9B661005F9707 /* Sunstake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sunstake.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				417A67BE2FAA3E280020A6F5 /* Privy in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = Sunstake;
 			packageProductDependencies = (
+				417A67BD2FAA3E280020A6F5 /* Privy */,
 			);
 			productName = Sunstake;
 			productReference = 41AF83902FA9B661005F9707 /* Sunstake.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 41AF83872FA9B661005F9707;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				417A67BC2FAA3E280020A6F5 /* XCRemoteSwiftPackageReference "privy-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 41AF83912FA9B661005F9707 /* Products */;
 			projectDirPath = "";
@@ -332,6 +341,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		417A67BC2FAA3E280020A6F5 /* XCRemoteSwiftPackageReference "privy-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/privy-io/privy-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		417A67BD2FAA3E280020A6F5 /* Privy */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 417A67BC2FAA3E280020A6F5 /* XCRemoteSwiftPackageReference "privy-ios" */;
+			productName = Privy;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 41AF83882FA9B661005F9707 /* Project object */;
 }

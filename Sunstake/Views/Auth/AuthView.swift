@@ -129,16 +129,16 @@ struct AuthView: View {
                 .disabled(!canSubmit || isLoading)
                 .accessibilityLabel(mode == .login ? "Iniciar sesión" : "Crear cuenta")
 
-                if mode == .login {
+                if mode == .login || mode == .register {
                     Button {
                         sendOTP()
                     } label: {
-                        Text(otpSent ? "Reenviar código" : "Enviar código por correo")
+                        Text(otpSent ? "Reenviar codigo" : "Enviar codigo por correo")
                             .font(.dsCaption)
                             .foregroundStyle(.secondary500)
                     }
                     .disabled(isLoading || !email.contains("@"))
-                    .accessibilityLabel("Enviar código de acceso por correo")
+                    .accessibilityLabel("Enviar codigo de acceso por correo")
                 }
 
                 // Face ID (solo login)
@@ -239,7 +239,11 @@ struct AuthView: View {
                 case .login:
                     try await appState.login(email: email, otp: otpCode)
                 case .register:
-                    try await appState.register(name: name.trimmingCharacters(in: .whitespaces), email: email)
+                    try await appState.register(
+                        name: name.trimmingCharacters(in: .whitespaces),
+                        email: email,
+                        otp: pinCode
+                    )
                 }
                 UINotificationFeedbackGenerator().notificationOccurred(.success)
             } catch {

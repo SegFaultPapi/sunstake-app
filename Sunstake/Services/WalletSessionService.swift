@@ -6,7 +6,7 @@ struct WalletAccount: Equatable {
 }
 
 protocol EmbeddedWalletProvider {
-    var displayName: String { get }
+    nonisolated var displayName: String { get }
     func createOrRestoreWallet(for email: String) async throws -> WalletAccount
     func logout() async
 }
@@ -23,7 +23,7 @@ enum WalletSessionError: LocalizedError {
 }
 
 struct MockEmbeddedWalletProvider: EmbeddedWalletProvider {
-    let displayName: String = "Privy (simulado)"
+    nonisolated let displayName: String = "Privy (simulado)"
 
     func createOrRestoreWallet(for email: String) async throws -> WalletAccount {
         guard email.contains("@") else {
@@ -50,7 +50,7 @@ struct MockEmbeddedWalletProvider: EmbeddedWalletProvider {
 actor WalletSessionService {
     private let provider: EmbeddedWalletProvider
 
-    init(provider: EmbeddedWalletProvider = MockEmbeddedWalletProvider()) {
+    init(provider: EmbeddedWalletProvider) {
         self.provider = provider
     }
 
@@ -64,5 +64,27 @@ actor WalletSessionService {
 
     func logout() async {
         await provider.logout()
+    }
+}
+
+struct PrivyEmbeddedWalletProvider: EmbeddedWalletProvider {
+    nonisolated let displayName: String = "Privy"
+    private let privyClient: PrivyClient
+
+    init(privyClient: PrivyClient) {
+        self.privyClient = privyClient
+    }
+
+    func createOrRestoreWallet(for email: String) async throws -> WalletAccount {
+        guard email.contains("@") else {
+            throw WalletSessionError.invalidEmail
+        }
+
+        let address = try await privyClient.createOrRestoreEthereumWalletAddress()
+        return WalletAccount(address: address, providerName: displayName)
+    }
+
+    func logout() async {
+        await privyClient.logout()
     }
 }

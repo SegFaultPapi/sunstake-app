@@ -4,10 +4,20 @@ import Observation
 
 @Observable
 final class AppState {
-    private let authService = AuthService()
-    private let walletSessionService = WalletSessionService()
+    private let privyClient: PrivyClient
+    private let authService: AuthService
+    private let walletSessionService: WalletSessionService
     private let blockchainService = BlockchainService()
     let networkConfig: NetworkConfig = .baseSepolia
+
+    init() {
+        let privyClient = PrivyClient()
+        self.privyClient = privyClient
+        self.authService = AuthService(privyClient: privyClient)
+        self.walletSessionService = WalletSessionService(
+            provider: PrivyEmbeddedWalletProvider(privyClient: privyClient)
+        )
+    }
 
     // MARK: - Auth state
     var isLoggedIn: Bool = false
@@ -123,16 +133,22 @@ final class AppState {
         walletAddress = wallet.address
         walletProviderLabel = wallet.providerName
         isLoggedIn = true
+        #if DEBUG
+        print("✅ [Sunstake] Login OK — email: \(session.email) | wallet: \(wallet.address) | provider: \(wallet.providerName)")
+        #endif
     }
 
-    func register(name: String, email: String) async throws {
-        let session = try await authService.register(name: name, email: email)
+    func register(name: String, email: String, otp: String) async throws {
+        let session = try await authService.register(name: name, email: email, otp: otp)
         let wallet = try await walletSessionService.createOrRestoreWallet(email: session.email)
         userName = session.fullName
         userEmail = session.email
         walletAddress = wallet.address
         walletProviderLabel = wallet.providerName
         isLoggedIn = true
+        #if DEBUG
+        print("✅ [Sunstake] Registro OK — email: \(session.email) | wallet: \(wallet.address) | provider: \(wallet.providerName)")
+        #endif
     }
 
     func changeRole() {

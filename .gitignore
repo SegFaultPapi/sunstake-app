@@ -83,6 +83,9 @@ contracts/broadcast/*/8453/run-latest.json
 .env
 .env.*
 !.env.example
+
+# Secretos de la app iOS — Privy app ID/client ID
+Sunstake/Configuration/Secrets.swift
 .env.local
 .env.development.local
 .env.test.local

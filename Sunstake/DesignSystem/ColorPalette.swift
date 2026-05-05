@@ -41,7 +41,7 @@ extension Color {
 
         var h: CGFloat = 0
         var s: CGFloat = 0
-        var l: CGFloat = (maxC + minC) / 2
+        let l: CGFloat = (maxC + minC) / 2
 
         if delta != 0 {
             s = delta / (1 - abs(2 * l - 1))
