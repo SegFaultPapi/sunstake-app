@@ -829,7 +829,7 @@ OwnershipTransfer.sol
 
 ### Contratos de Referencia (Base Sepolia)
 
-- USDC on Base Sepolia: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- USDC on Base Sepolia (demo): `0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f` — TestnetERC20 (6 decimales). Faucet con mint generoso: https://staging.aave.com/faucet (selecciona Base Sepolia).
 - Base Sepolia Explorer: `https://sepolia.basescan.org`
 - Base Sepolia RPC: `https://sepolia.base.org`
 

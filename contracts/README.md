@@ -43,8 +43,10 @@ Beneficiario.approve(paymentSplitter, cuota)
 
 | Red | Chain ID | USDC |
 |-----|----------|------|
-| Base Sepolia (demo) | 84532 | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
-| Base Mainnet | 8453 | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+| Base Sepolia (demo) | 84532 | `0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f` (TestnetERC20, 6 dec.) |
+| Base Mainnet | 8453 | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (USDC oficial Circle, 6 dec.) |
+
+> En Base Sepolia usamos un USDC de pruebas con faucet generoso en [staging.aave.com/faucet](https://staging.aave.com/faucet) (selecciona Base Sepolia).
 
 ## Setup
 

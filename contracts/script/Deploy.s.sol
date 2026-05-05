@@ -20,9 +20,10 @@ import "../src/SunstakeFactory.sol";
 ///   forge script script/Deploy.s.sol --rpc-url base_mainnet \
 ///     --private-key $PRIVATE_KEY --broadcast --verify -vvvv
 contract DeployScript is Script {
-    // USDC en Base Sepolia
-    address constant USDC_SEPOLIA = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
-    // USDC en Base Mainnet
+    // USDC de pruebas en Base Sepolia: TestnetERC20 (6 decimales).
+    // Faucet con mint generoso: https://staging.aave.com/faucet (selecciona Base Sepolia).
+    address constant USDC_SEPOLIA = 0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f;
+    // USDC en Base Mainnet (oficial de Circle, 6 decimales).
     address constant USDC_MAINNET = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
 
     // Fee de plataforma: 7% = 700 bps

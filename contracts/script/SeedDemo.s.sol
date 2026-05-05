@@ -14,15 +14,16 @@ import "../src/PaymentSplitter.sol";
 /// Requisitos:
 ///   - SunstakeFactory ya desplegada (FACTORY_ADDRESS en .env)
 ///   - Deployer debe tener USDC en Base Sepolia
-///     Obtener USDC Sepolia: https://faucet.circle.com
+///     Obtener USDC Sepolia (TestnetERC20 de Aave, 6 decimales):
+///     https://staging.aave.com/faucet (selecciona Base Sepolia)
 ///   - Deployer actúa como todos los beneficiarios e inversores para simplificar el demo
 ///
 /// Uso:
 ///   forge script script/SeedDemo.s.sol --rpc-url base_sepolia \
 ///     --private-key $PRIVATE_KEY --broadcast -vvvv
 contract SeedDemoScript is Script {
-    // USDC en Base Sepolia
-    IERC20 constant USDC = IERC20(0x036CbD53842c5426634e7929541eC2318f3dCF7e);
+    // USDC de pruebas en Base Sepolia (TestnetERC20 6 decimales, faucet generoso de Aave).
+    IERC20 constant USDC = IERC20(0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f);
 
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");

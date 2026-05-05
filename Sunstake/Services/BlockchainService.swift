@@ -40,12 +40,16 @@ actor BlockchainService {
         return Self.mockTxHash(prefix: "aa")
     }
 
+    /// Transfiere USDC del inversor al PaymentSplitter del proyecto.
+    /// Cuando se implemente la transferencia real debe usar `config.usdcAddress` como token.
     func purchaseTokens() async throws -> String {
         try await ensureBaseSepolia()
         try await Task.sleep(nanoseconds: 900_000_000)
         return Self.mockTxHash(prefix: "bb")
     }
 
+    /// Beneficiario paga su cuota mensual en USDC al PaymentSplitter.
+    /// Cuando se implemente la transferencia real debe usar `config.usdcAddress` como token.
     func payMonthlyQuota() async throws -> String {
         try await ensureBaseSepolia()
         try await Task.sleep(nanoseconds: 900_000_000)

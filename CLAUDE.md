@@ -95,8 +95,8 @@ Beneficiary pays monthly quota in USDC
 
 - **Testnet (demo):** Base Sepolia (chain ID: 84532) — `https://sepolia.base.org`
 - **Production:** Base Mainnet (chain ID: 8453) — `https://mainnet.base.org`
-- **USDC on Base Mainnet:** `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
-- **USDC on Base Sepolia:** `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- **USDC on Base Mainnet:** `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (USDC oficial Circle, 6 decimales)
+- **USDC on Base Sepolia (demo):** `0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f` (TestnetERC20, 6 decimales). Faucet con mint generoso: [staging.aave.com/faucet](https://staging.aave.com/faucet) (selecciona Base Sepolia).
 
 ### Core ML Model — Quota Calculator
 
