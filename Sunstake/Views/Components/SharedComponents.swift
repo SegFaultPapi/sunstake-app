@@ -187,7 +187,7 @@ struct ContractInfoView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Contrato verificable", systemImage: "link.circle.fill")
+            Label("Registro del proyecto", systemImage: "link.circle.fill")
                 .font(.dsCaption.weight(.semibold))
                 .foregroundStyle(.chain500)
 
@@ -196,7 +196,7 @@ struct ContractInfoView: View {
                     Text(shortAddress)
                         .font(.caption.monospaced())
                         .foregroundStyle(.chain500)
-                    Text("Red: \(network)")
+                    Text(network)
                         .font(.caption2)
                         .foregroundStyle(.textSecondary)
                 }

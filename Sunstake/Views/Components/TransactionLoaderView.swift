@@ -35,8 +35,8 @@ struct TransactionLoaderView<Destination: View>: View {
                     // HCAI: visible progress steps
                     VStack(spacing: 8) {
                         LoaderStep(label: "Creando contrato", isDone: isDone(.creatingContract), isCurrent: isCurrent(.creatingContract))
-                        LoaderStep(label: "Emitiendo tokens", isDone: isDone(.mintingTokens), isCurrent: isCurrent(.mintingTokens))
-                        LoaderStep(label: "Confirmando en Base Network", isDone: isDone(.confirming), isCurrent: isCurrent(.confirming))
+                        LoaderStep(label: "Emitiendo participaciones", isDone: isDone(.mintingTokens), isCurrent: isCurrent(.mintingTokens))
+                        LoaderStep(label: "Confirmando en red de pagos", isDone: isDone(.confirming), isCurrent: isCurrent(.confirming))
                     }
                     .padding(16)
                     .background(Color.surface)
@@ -88,11 +88,11 @@ struct TransactionLoaderView<Destination: View>: View {
                                 UIApplication.shared.open(url)
                             }
                         } label: {
-                            Label("Ver en Basescan", systemImage: "arrow.up.right.square")
+                            Label("Ver comprobante", systemImage: "arrow.up.right.square")
                                 .font(.dsCaption.weight(.semibold))
                                 .foregroundStyle(.chain500)
                         }
-                        .accessibilityLabel("Ver transacción en Basescan")
+                        .accessibilityLabel("Ver comprobante de la transacción")
                     }
                     .padding(16)
                     .background(Color.chain500.opacity(0.06))
