@@ -105,8 +105,8 @@ final class AppState {
             }
             let ciudadCompleta = result.ubicacion
             let parts = ciudadCompleta.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-            let ciudad = parts.first.map(String.init) ?? ciudadCompleta
-            let estado = parts.count > 1 ? String(parts[1]) : "MX"
+            let ciudad = parts.first ?? ciudadCompleta
+            let estado = parts.count > 1 ? parts[1] : "MX"
 
             transactionState = .confirming
             let blockchainResult = try await blockchainService.publishProject(
@@ -135,8 +135,8 @@ final class AppState {
         let totalUSDC = totalMXN / 17.5
         let ciudadCompleta = result?.ubicacion ?? "Tu zona"
         let parts = ciudadCompleta.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        let ciudad = parts.first.map(String.init) ?? ciudadCompleta
-        let estado = parts.count > 1 ? String(parts[1]) : "MX"
+        let ciudad = parts.first ?? ciudadCompleta
+        let estado = parts.count > 1 ? parts[1] : "MX"
 
         let ca = BlockchainService.canonicalEVMAddress(blockchainResult.solarProjectAddress)
         let ps = BlockchainService.canonicalEVMAddress(blockchainResult.paymentSplitterAddress)

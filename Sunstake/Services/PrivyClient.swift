@@ -146,8 +146,10 @@ struct PrivyEVMSigner: EVMSigner {
     }
 
     func sendTransaction(_ tx: UnsignedEVMTx) async throws -> String {
-        try await MainActor.run {
-            try await self.privyClient.sendEthTransaction(
+        let client = privyClient
+        let rpcUrl = rpcURL
+        return try await Task { @MainActor in
+            try await client.sendEthTransaction(
                 from: tx.from,
                 to: tx.to,
                 data: tx.data,
@@ -156,8 +158,8 @@ struct PrivyEVMSigner: EVMSigner {
                 gasLimit: tx.gasLimit,
                 gasPrice: tx.gasPrice,
                 chainId: tx.chainId,
-                rpcUrl: self.rpcURL
+                rpcUrl: rpcUrl
             )
-        }
+        }.value
     }
 }
