@@ -71,9 +71,12 @@ struct ProjectCardView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(Color.white)
+        .background(Color.chain500.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 1)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.chain500, lineWidth: 1.5)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             "\(project.ciudad), \(project.estado). " +
