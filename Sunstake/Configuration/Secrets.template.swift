@@ -6,9 +6,11 @@
 // Los valores de demo de Privy ya están incluidos para facilitar el onboarding.
 // NO subas Secrets.swift al repo; está en .gitignore a propósito.
 
+/*
 import Foundation
 
 enum Secrets {
     static let privyAppId: String = "cmosq2wne00en0eiimv5hhuv1"
     static let privyClientId: String = "client-WY6YhY6X933udX3yTw843uC5eEuEfvNHzhc2mBRKJhW4M"
 }
+*/
