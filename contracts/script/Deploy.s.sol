@@ -29,8 +29,21 @@ contract DeployScript is Script {
     // Fee de plataforma: 7% = 700 bps
     uint256 constant PLATFORM_FEE_BPS = 700;
 
+    /// @dev Forge `vm.envUint("PRIVATE_KEY")` exige prefijo `0x`; `.env.example` documenta PK sin prefijo.
+    ///      Aqui aceptamos ambos sin escribir el secreto en el repo (solo formato del string).
+    function _deployerPrivateKey() internal view returns (uint256) {
+        string memory raw = vm.envString("PRIVATE_KEY");
+        bytes memory rb = bytes(raw);
+        bool hasOx = rb.length >= 2 &&
+            rb[0] == 0x30 && (rb[1] == 0x78 || rb[1] == 0x58);
+        if (hasOx) {
+            return vm.parseUint(raw);
+        }
+        return vm.parseUint(string.concat("0x", raw));
+    }
+
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey = _deployerPrivateKey();
         address deployer = vm.addr(deployerPrivateKey);
 
         // Leer la dirección de la treasury de Sunstake del env

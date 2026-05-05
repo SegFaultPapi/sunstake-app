@@ -117,6 +117,12 @@ struct ProjectExplorerView: View {
             .changeRoleButton()
             .navigationTitle("Proyectos")
             .searchable(text: $searchText, prompt: "Ciudad o estado")
+            .task {
+                await appState.refreshProjectCatalogFromChain()
+            }
+            .refreshable {
+                await appState.refreshProjectCatalogFromChain()
+            }
         }
     }
 }

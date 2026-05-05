@@ -7,10 +7,14 @@ final class AppState {
     private let privyClient: PrivyClient
     private let authService: AuthService
     private let walletSessionService: WalletSessionService
-    private let blockchainService = BlockchainService()
-    let networkConfig: NetworkConfig = .baseSepolia
+    private let blockchainService: BlockchainService
+
+    let networkConfig: NetworkConfig
 
     init() {
+        let nc = NetworkConfig.baseSepolia
+        self.networkConfig = nc
+        self.blockchainService = BlockchainService(config: nc)
         let privyClient = PrivyClient()
         self.privyClient = privyClient
         self.authService = AuthService(privyClient: privyClient)
@@ -41,7 +45,7 @@ final class AppState {
     var ownershipPct: Double = 0
 
     // Investor state
-    // `projects` es el catalogo publico (datos demo del hackathon); el resto son datos del usuario y arrancan vacios.
+    // Catalogo del explorador (mocks si la factory esta vacia o falla el RPC).
     var projects: [SolarProject] = SolarProject.mockProjects
     var yieldHistory: [YieldEntry] = []
     var investments: [Investment] = []
@@ -49,6 +53,22 @@ final class AppState {
 
     // Transaction state
     var transactionState: TransactionState = .idle
+
+    private func evmSigner() -> PrivyEVMSigner {
+        PrivyEVMSigner(privyClient: privyClient, rpcURL: networkConfig.rpcURL.absoluteString)
+    }
+
+    /// Sincroniza el listado de proyectos con `SunstakeFactory.getProjects()` en Base Sepolia.
+    func refreshProjectCatalogFromChain() async {
+        do {
+            let onChain = try await blockchainService.fetchSolarProjectsForExplorer()
+            projects = onChain.isEmpty ? SolarProject.mockProjects : onChain
+        } catch {
+            #if DEBUG
+            print("[Sunstake] Catalogo on-chain: \(error.localizedDescription)")
+            #endif
+        }
+    }
 
     // MARK: - Beneficiary actions
 
@@ -78,35 +98,53 @@ final class AppState {
 
     func publishProject() async {
         transactionState = .creatingContract
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
-        transactionState = .mintingTokens
-        try? await Task.sleep(nanoseconds: 1_200_000_000)
-        transactionState = .confirming
         do {
-            let hash = try await blockchainService.publishProject()
-            transactionState = .success(txHash: hash)
-            activeProject = makeFreshProject(txHash: hash)
+            guard let result = quotaResult else {
+                transactionState = .error(message: "No hay una cuota calculada. Vuelve a calcular tu cuota.")
+                return
+            }
+            let ciudadCompleta = result.ubicacion
+            let parts = ciudadCompleta.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            let ciudad = parts.first.map(String.init) ?? ciudadCompleta
+            let estado = parts.count > 1 ? String(parts[1]) : "MX"
+
+            transactionState = .confirming
+            let blockchainResult = try await blockchainService.publishProject(
+                cuotaUSDC: result.cuotaUSDC,
+                montoTotalUSDC: result.montoTotalMXN / 17.5,
+                plazoMeses: result.plazoMeses,
+                rendimientoAnualPct: result.rendimientoInversorPct,
+                ciudad: ciudad,
+                estado: estado,
+                fromAddress: walletAddress,
+                signer: evmSigner()
+            )
+            transactionState = .success(txHash: blockchainResult.txHash)
+            activeProject = makeFreshProject(blockchainResult: blockchainResult)
+            await refreshProjectCatalogFromChain()
         } catch {
             transactionState = .error(message: error.localizedDescription)
         }
     }
 
-    /// Construye el `SolarProject` recien publicado a partir del `quotaResult` real del beneficiario.
-    /// Inicia con 0% financiado y plazo completo: aun no hay inversores ni cuotas pagadas.
-    private func makeFreshProject(txHash: String) -> SolarProject {
+    /// Construye el `SolarProject` recien publicado usando direcciones reales emitidas por `SunstakeFactory`.
+    private func makeFreshProject(blockchainResult: BlockchainPublishResult) -> SolarProject {
         let result = quotaResult
         let plazo = result?.plazoMeses ?? 36
         let totalMXN = result?.montoTotalMXN ?? 30_000
         let totalUSDC = totalMXN / 17.5
         let ciudadCompleta = result?.ubicacion ?? "Tu zona"
         let parts = ciudadCompleta.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        let ciudad = parts.first ?? ciudadCompleta
-        let estado = parts.count > 1 ? parts[1] : "MX"
+        let ciudad = parts.first.map(String.init) ?? ciudadCompleta
+        let estado = parts.count > 1 ? String(parts[1]) : "MX"
+
+        let ca = BlockchainService.canonicalEVMAddress(blockchainResult.solarProjectAddress)
+        let ps = BlockchainService.canonicalEVMAddress(blockchainResult.paymentSplitterAddress)
 
         return SolarProject(
-            id: UUID(),
-            ciudad: String(ciudad),
-            estado: String(estado),
+            id: SolarProject.deterministicId(contractAddress: ca),
+            ciudad: ciudad,
+            estado: estado,
             rendimientoAnualPct: result?.rendimientoInversorPct ?? 9.0,
             plazoTotalMeses: plazo,
             mesesRestantes: plazo,
@@ -115,7 +153,8 @@ final class AppState {
             kwhGeneradosAnio: (result?.consumoKWh ?? 250) * 12,
             montoMinUSD: 1,
             montoTotalUSD: totalUSDC,
-            contractAddress: txHash,
+            contractAddress: ca,
+            paymentSplitterAddress: ps,
             status: .open,
             beneficiario: userName.isEmpty ? "Beneficiario" : userName
         )
@@ -124,19 +163,26 @@ final class AppState {
     func purchaseTokens(montoUSD: Double, project: SolarProject? = nil) async {
         transactionState = .processing
         do {
-            let hash = try await blockchainService.purchaseTokens()
-            if let project {
-                let investment = Investment(
-                    id: UUID(),
-                    projectId: project.id,
-                    montoUSDC: montoUSD,
-                    fecha: Date(),
-                    txHash: hash
-                )
-                investments.insert(investment, at: 0)
-                if !investedProjects.contains(where: { $0.id == project.id }) {
-                    investedProjects.insert(project, at: 0)
-                }
+            guard let project else {
+                transactionState = .error(message: "Selecciona un proyecto valido antes de invertir.")
+                return
+            }
+            let hash = try await blockchainService.purchaseTokens(
+                solarProjectAddress: project.contractAddress,
+                amountUSDC: montoUSD,
+                fromAddress: walletAddress,
+                signer: evmSigner()
+            )
+            let investment = Investment(
+                id: UUID(),
+                projectId: project.id,
+                montoUSDC: montoUSD,
+                fecha: Date(),
+                txHash: hash
+            )
+            investments.insert(investment, at: 0)
+            if !investedProjects.contains(where: { $0.id == project.id }) {
+                investedProjects.insert(project, at: 0)
             }
             transactionState = .purchaseSuccess(txHash: hash)
             await refreshWalletBalance()
@@ -160,11 +206,22 @@ final class AppState {
     func payMonthlyQuota() async {
         transactionState = .processing
         do {
-            let hash = try await blockchainService.payMonthlyQuota()
+            guard let splitter = activeProject?.paymentSplitterAddress, !splitter.isEmpty else {
+                transactionState =
+                    .error(message: "No hay un proyecto con contrato registrado para pagos. Primero debes publicar tu proyecto desde la app.")
+                return
+            }
+            let cuotaUSD = quotaResult?.cuotaUSDC ?? ((quotaResult?.cuotaMXN ?? 850) / 17.5)
+            let hash = try await blockchainService.payMonthlyQuota(
+                paymentSplitterAddress: splitter,
+                cuotaUSDC: cuotaUSD,
+                fromAddress: walletAddress,
+                signer: evmSigner()
+            )
             let newPayment = Payment(
                 id: UUID(), fecha: Date(),
                 montoMXN: quotaResult?.cuotaMXN ?? 850,
-                montoUSDC: (quotaResult?.cuotaUSDC ?? 48.57),
+                montoUSDC: quotaResult?.cuotaUSDC ?? cuotaUSD,
                 txHash: hash
             )
             paymentHistory.insert(newPayment, at: 0)
@@ -248,7 +305,7 @@ final class AppState {
         walletProviderLabel = ""
         walletBalanceUSDC = 0
         balanceError = nil
-        // Datos del usuario: limpiar al cerrar sesion (solo `projects` queda como catalogo publico).
+        // Datos del usuario: limpiar al cerrar sesion (el catalogo vuelve a mocks hasta el proximo RPC).
         paymentHistory = []
         yieldHistory = []
         investments = []
@@ -256,6 +313,7 @@ final class AppState {
         activeProject = nil
         ownershipPct = 0
         quotaResult = nil
+        projects = SolarProject.mockProjects
         // hasCompletedOnboarding se mantiene: el onboarding solo se muestra una vez
         Task {
             await walletSessionService.logout()

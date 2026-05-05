@@ -181,8 +181,16 @@ struct ContractInfoView: View {
 
     @State private var copied = false
 
+    private var displayAddress: String {
+        EvmNormalize.canonicalAddress(address) ?? address.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var basescanContractURL: URL? {
+        EvmNormalize.basescanAddressURL(explorerBase: explorerURL, address: address)
+    }
+
     private var shortAddress: String {
-        "\(address.prefix(8))...\(address.suffix(6))"
+        "\(displayAddress.prefix(8))...\(displayAddress.suffix(6))"
     }
 
     var body: some View {
@@ -203,7 +211,7 @@ struct ContractInfoView: View {
                 Spacer()
                 HStack(spacing: 8) {
                     Button {
-                        UIPasteboard.general.string = address
+                        UIPasteboard.general.string = displayAddress
                         copied = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { copied = false }
                     } label: {
@@ -213,16 +221,21 @@ struct ContractInfoView: View {
                     }
                     .accessibilityLabel(copied ? "Copiado" : "Copiar dirección del contrato")
 
-                    Button {
-                        if let url = URL(string: "\(explorerURL)/address/\(address)") {
-                            UIApplication.shared.open(url)
+                    if let basescanContractURL {
+                        Button {
+                            UIApplication.shared.open(basescanContractURL)
+                        } label: {
+                            Label("Ver detalles", systemImage: "arrow.up.right.square")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.chain500)
                         }
-                    } label: {
-                        Label("Ver detalles", systemImage: "arrow.up.right.square")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.chain500)
+                        .accessibilityLabel("Ver detalles del registro en el explorador")
+                    } else {
+                        Text("Enlace pendiente — direccion ilegible")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.warning)
+                            .accessibilityLabel("La direccion del contrato no se pudo normalizar para Basescan")
                     }
-                    .accessibilityLabel("Ver detalles del registro")
                 }
             }
         }

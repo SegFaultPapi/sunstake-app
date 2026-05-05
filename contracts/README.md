@@ -80,11 +80,11 @@ forge script script/Deploy.s.sol \
 # 3. Añadir FACTORY_ADDRESS al .env con la dirección impresa en el paso anterior
 
 # 4. Seed de datos de demo (3 proyectos + inversores + 2 ciclos de pago)
-# Requiere USDC en Base Sepolia: https://faucet.circle.com
-forge script script/SeedDemo.s.sol \
+# Requiere USDC suficiente en Base Sepolia (el script valida ≥ 3000 USDC en el deployer).
+# Obtener Testnet ERC20 desde: https://staging.aave.com/faucet (Base Sepolia)
+forge script script/SeedDemo.s.sol:SeedDemoScript \
   --rpc-url base_sepolia \
-  --private-key $PRIVATE_KEY \
-  --broadcast -vvvv
+  --broadcast -v
 ```
 
 ## Integración con la app iOS

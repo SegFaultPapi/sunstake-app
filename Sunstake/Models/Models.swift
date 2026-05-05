@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import SwiftUI
 
@@ -118,7 +119,10 @@ struct SolarProject: Identifiable {
     let kwhGeneradosAnio: Double
     let montoMinUSD: Double
     let montoTotalUSD: Double
+    /// Direccion del contrato `SolarProject` (ERC-1155 + metadata).
     let contractAddress: String
+    /// Direccion del `PaymentSplitter` del mismo deploy (vacío en proyectos demo de catalogo).
+    let paymentSplitterAddress: String
     let status: ProjectStatus
     let beneficiario: String
 
@@ -163,7 +167,41 @@ struct Investment: Identifiable {
 
 // MARK: - Mock Data
 
+extension Data {
+    /// Construye datos desde una cadena hexadecimal de bytes pares (`40` chars = direccion EVM sin `0x`).
+    nonisolated init?(evmHex hex: String) {
+        guard hex.count % 2 == 0 else { return nil }
+        var data = Data()
+        data.reserveCapacity(hex.count / 2)
+        var idx = hex.startIndex
+        while idx < hex.endIndex {
+            let next = hex.index(idx, offsetBy: 2)
+            guard let b = UInt8(hex[idx..<next], radix: 16) else { return nil }
+            data.append(b)
+            idx = next
+        }
+        self = data
+    }
+}
+
 extension SolarProject {
+    /// ID estable desde la direccion `SolarProject` para que el catalogo RPC no rompa `Investment`.
+    nonisolated static func deterministicId(contractAddress: String) -> UUID {
+        let hex = contractAddress
+            .lowercased()
+            .replacingOccurrences(of: "0x", with: "")
+        guard hex.count == 40, let addrData = Data(evmHex: hex) else {
+            return UUID()
+        }
+        let digest = SHA256.hash(data: addrData)
+        let b = Array(digest)
+        guard b.count >= 16 else { return UUID() }
+        return UUID(uuid: (
+            b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7],
+            b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15]
+        ))
+    }
+
     static let mockProjects: [SolarProject] = [
         SolarProject(
             id: UUID(), ciudad: "Guadalajara", estado: "JAL",
@@ -171,6 +209,7 @@ extension SolarProject {
             porcentajeFinanciado: 0.78, co2ToneladasAnio: 1.2, kwhGeneradosAnio: 2_400,
             montoMinUSD: 1, montoTotalUSD: 2_250,
             contractAddress: "0x7f3a4b2c9d1e8f5a0c3b6d9e2f1a4b7c0d3e6f9a",
+            paymentSplitterAddress: "",
             status: .open, beneficiario: "Ana R."
         ),
         SolarProject(
@@ -179,6 +218,7 @@ extension SolarProject {
             porcentajeFinanciado: 0.45, co2ToneladasAnio: 0.9, kwhGeneradosAnio: 1_800,
             montoMinUSD: 1, montoTotalUSD: 1_800,
             contractAddress: "0x3a9f1e7d4c2b8a5f0e3c6b9d2a1f4e7c0b3d6a9f",
+            paymentSplitterAddress: "",
             status: .open, beneficiario: "María L."
         ),
         SolarProject(
@@ -187,6 +227,7 @@ extension SolarProject {
             porcentajeFinanciado: 0.31, co2ToneladasAnio: 1.5, kwhGeneradosAnio: 3_000,
             montoMinUSD: 1, montoTotalUSD: 2_800,
             contractAddress: "0x1c4e7a0f3b6d9e2c5a8f1b4d7e0c3f6a9b2e5d8f",
+            paymentSplitterAddress: "",
             status: .open, beneficiario: "Carlos M."
         ),
         SolarProject(
@@ -195,6 +236,7 @@ extension SolarProject {
             porcentajeFinanciado: 1.0, co2ToneladasAnio: 0.8, kwhGeneradosAnio: 1_600,
             montoMinUSD: 1, montoTotalUSD: 1_500,
             contractAddress: "0x9d2f5a8e1b4c7f0d3e6a9b2c5f8a1e4b7d0c3f6a",
+            paymentSplitterAddress: "",
             status: .funded, beneficiario: "Jorge P."
         )
     ]

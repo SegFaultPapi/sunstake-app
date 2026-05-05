@@ -16,21 +16,31 @@ struct NetworkConfig {
     let factoryAddress: String
     let isTestnet: Bool
 
-    nonisolated(unsafe) static let baseSepolia = NetworkConfig(
-        environment: .baseSepolia,
-        chainId: 84_532,
-        chainHex: "0x14a34",
-        chainName: "Base Sepolia",
-        rpcURL: URL(string: "https://sepolia.base.org")!,
-        fallbackRPCURL: URL(string: "https://base-sepolia.g.alchemy.com/v2/demo")!,
-        baseScanBaseURL: URL(string: "https://sepolia.basescan.org")!,
-        // USDC de pruebas (TestnetERC20, 6 decimales) usado por el faucet de Aave en Base Sepolia.
-        // Permite mintar montos grandes para demo. Cuando salgamos a Base Mainnet
-        // hay que cambiar a 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (USDC oficial de Circle).
-        usdcAddress: "0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f",
-        factoryAddress: "0x0000000000000000000000000000000000000000",
-        isTestnet: true
-    )
+    /// Configuracion de Base Sepolia. La direccion del `SunstakeFactory` debe venir de `Secrets.sunstakeFactoryAddress`
+    /// (output de `forge script ... Deploy.s.sol`).
+    nonisolated(unsafe) static var baseSepolia: NetworkConfig {
+        let trimmed = Secrets.sunstakeFactoryAddress.trimmingCharacters(in: .whitespacesAndNewlines)
+        let factoryAddress: String
+        if trimmed.isEmpty {
+            factoryAddress = "0x0000000000000000000000000000000000000000"
+        } else if trimmed.hasPrefix("0x") {
+            factoryAddress = trimmed
+        } else {
+            factoryAddress = "0x" + trimmed
+        }
+        return NetworkConfig(
+            environment: .baseSepolia,
+            chainId: 84_532,
+            chainHex: "0x14a34",
+            chainName: "Base Sepolia",
+            rpcURL: URL(string: "https://sepolia.base.org")!,
+            fallbackRPCURL: URL(string: "https://base-sepolia.g.alchemy.com/v2/demo")!,
+            baseScanBaseURL: URL(string: "https://sepolia.basescan.org")!,
+            usdcAddress: "0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f",
+            factoryAddress: factoryAddress,
+            isTestnet: true
+        )
+    }
 
     var networkLabel: String {
         isTestnet ? "\(chainName) (modo de prueba)" : chainName

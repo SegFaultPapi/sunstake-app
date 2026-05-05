@@ -25,8 +25,20 @@ contract SeedDemoScript is Script {
     // USDC de pruebas en Base Sepolia (TestnetERC20 6 decimales, faucet generoso de Aave).
     IERC20 constant USDC = IERC20(0xba50Cd2A20f6DA35D788639E581bca8d0B5d4D5f);
 
+    /// @dev Misma tolerancia PK `0x` que `Deploy.s.sol` (solo formato, no valores).
+    function _deployerPrivateKey() internal view returns (uint256) {
+        string memory raw = vm.envString("PRIVATE_KEY");
+        bytes memory rb = bytes(raw);
+        bool hasOx = rb.length >= 2 &&
+            rb[0] == 0x30 && (rb[1] == 0x78 || rb[1] == 0x58);
+        if (hasOx) {
+            return vm.parseUint(raw);
+        }
+        return vm.parseUint(string.concat("0x", raw));
+    }
+
     function run() external {
-        uint256 deployerKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerKey = _deployerPrivateKey();
         address deployer = vm.addr(deployerKey);
 
         address factoryAddress = vm.envAddress("FACTORY_ADDRESS");

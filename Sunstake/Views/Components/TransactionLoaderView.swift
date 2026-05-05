@@ -70,29 +70,8 @@ struct TransactionLoaderView<Destination: View>: View {
                         Text("Código de verificación")
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.textSecondary)
-                        HStack(spacing: 6) {
-                            Text("\(hash.prefix(8))...\(hash.suffix(6))")
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.chain500)
-                            Button {
-                                UIPasteboard.general.string = hash
-                            } label: {
-                                Image(systemName: "doc.on.doc")
-                                    .font(.caption)
-                                    .foregroundStyle(.chain500)
-                            }
-                            .accessibilityLabel("Copiar código de verificación")
-                        }
-                        Button {
-                            if let url = URL(string: "https://sepolia.basescan.org/tx/\(hash)") {
-                                UIApplication.shared.open(url)
-                            }
-                        } label: {
-                            Label("Ver comprobante", systemImage: "arrow.up.right.square")
-                                .font(.dsCaption.weight(.semibold))
-                                .foregroundStyle(.chain500)
-                        }
-                        .accessibilityLabel("Ver comprobante de la transacción")
+                        CopyableVerificationHash(shortHashPrefix: hash)
+                        TxHashBasescanButton(hash: hash)
                     }
                     .padding(16)
                     .background(Color.chain500.opacity(0.06))
@@ -158,6 +137,48 @@ struct TransactionLoaderView<Destination: View>: View {
 
     private func isCurrent(_ state: TransactionState) -> Bool {
         state == appState.transactionState
+    }
+}
+
+private struct CopyableVerificationHash: View {
+    let shortHashPrefix: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text("\(shortHashPrefix.prefix(8))...\(shortHashPrefix.suffix(6))")
+                .font(.caption.monospaced())
+                .foregroundStyle(.chain500)
+            Button {
+                UIPasteboard.general.string = EvmNormalize.canonicalTxHash(shortHashPrefix) ?? shortHashPrefix
+            } label: {
+                Image(systemName: "doc.on.doc")
+                    .font(.caption)
+                    .foregroundStyle(.chain500)
+            }
+            .accessibilityLabel("Copiar código de verificación")
+        }
+    }
+}
+
+private struct TxHashBasescanButton: View {
+    let hash: String
+
+    private var explorerURL: URL? {
+        EvmNormalize.basescanTxURL(txHash: hash)
+    }
+
+    var body: some View {
+        Button {
+            if let explorerURL {
+                UIApplication.shared.open(explorerURL)
+            }
+        } label: {
+            Label("Ver comprobante", systemImage: "arrow.up.right.square")
+                .font(.dsCaption.weight(.semibold))
+                .foregroundStyle(explorerURL != nil ? Color.chain500 : Color.textSecondary)
+        }
+        .disabled(explorerURL == nil)
+        .accessibilityLabel("Ver comprobante de la transacción en Basescan")
     }
 }
 
