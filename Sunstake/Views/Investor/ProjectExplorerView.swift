@@ -46,7 +46,7 @@ struct ProjectExplorerView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                 }
-                .background(Color.white)
+                .background(Color(UIColor.systemBackground))
 
                 Divider()
 

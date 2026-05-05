@@ -120,7 +120,7 @@ struct BreakdownRow: View {
                 .foregroundStyle(.textPrimary)
         }
         .padding(DSSpacing.sm + 2)
-        .background(Color.white)
+        .background(Color.surface)
         .clipShape(RoundedRectangle(cornerRadius: DSRadius.sm))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label): \(value). \(source)")
