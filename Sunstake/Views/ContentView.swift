@@ -37,6 +37,12 @@ struct BeneficiaryRootView: View {
                 .tabItem {
                     Label("Mi Panel", systemImage: "sun.max.fill")
                 }
+
+            BeneficiaryFinancingView()
+                .tabItem {
+                    Label("Mi Proyecto", systemImage: "chart.pie.fill")
+                }
+
             AccountView()
                 .tabItem {
                     Label("Cuenta", systemImage: "person.circle")
