@@ -19,10 +19,14 @@ struct PurchaseFlowView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Step indicator — HCAI: clear progress, no surprises
-                StepIndicator(current: currentStep, total: totalSteps)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
-                    .padding(.bottom, 4)
+                StepIndicator(
+                    current: currentStep,
+                    total: totalSteps,
+                    labels: ["Monto", "Resumen", "Confirmación"]
+                )
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 4)
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -81,7 +85,7 @@ struct PurchaseFlowView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
-                .background(Color.white)
+                .background(Color(.systemBackground))
             }
             .navigationTitle("Invertir")
             .navigationBarTitleDisplayMode(.inline)
@@ -238,32 +242,47 @@ struct PurchaseFlowView: View {
 struct StepIndicator: View {
     let current: Int
     let total: Int
+    var labels: [String] = []
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(1...total, id: \.self) { step in
-                Circle()
-                    .fill(step <= current ? Color.chain500 : Color.gray.opacity(0.25))
-                    .frame(width: 28, height: 28)
-                    .overlay(
-                        Group {
-                            if step < current {
-                                Image(systemName: "checkmark")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.white)
-                            } else {
-                                Text("\(step)")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(step <= current ? .white : .textSecondary)
+        VStack(spacing: 6) {
+            HStack(spacing: 0) {
+                ForEach(1...total, id: \.self) { step in
+                    Circle()
+                        .fill(step <= current ? Color.chain500 : Color.gray.opacity(0.25))
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Group {
+                                if step < current {
+                                    Image(systemName: "checkmark")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(.white)
+                                } else {
+                                    Text("\(step)")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(step <= current ? .white : .textSecondary)
+                                }
                             }
-                        }
-                    )
-                    .accessibilityLabel("Paso \(step) de \(total)\(step == current ? ", actual" : step < current ? ", completado" : "")")
+                        )
+                        .accessibilityLabel("Paso \(step) de \(total)\(step == current ? ", actual" : step < current ? ", completado" : "")")
 
-                if step < total {
-                    Rectangle()
-                        .fill(step < current ? Color.chain500 : Color.gray.opacity(0.25))
-                        .frame(height: 2)
+                    if step < total {
+                        Rectangle()
+                            .fill(step < current ? Color.chain500 : Color.gray.opacity(0.25))
+                            .frame(height: 2)
+                    }
+                }
+            }
+
+            if !labels.isEmpty {
+                HStack(spacing: 0) {
+                    ForEach(labels.indices, id: \.self) { i in
+                        Text(labels[i])
+                            .font(.caption2)
+                            .foregroundStyle(i + 1 == current ? .chain500 : .textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .multilineTextAlignment(.center)
+                    }
                 }
             }
         }

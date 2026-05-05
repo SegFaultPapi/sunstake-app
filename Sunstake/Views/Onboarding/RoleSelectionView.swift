@@ -43,7 +43,7 @@ struct RoleSelectionView: View {
                 .foregroundStyle(.textSecondary)
                 .padding(.bottom, 32)
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(.systemBackground).ignoresSafeArea())
     }
 }
 

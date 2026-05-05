@@ -52,14 +52,28 @@ struct ProjectExplorerView: View {
 
                 // Project list
                 if filteredProjects.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 48))
+                    VStack(spacing: 20) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.system(size: 52))
                             .foregroundStyle(.textSecondary)
-                        Text("No hay proyectos con esos filtros")
-                            .font(.dsBody)
-                            .foregroundStyle(.textSecondary)
+                        VStack(spacing: 8) {
+                            Text("Sin proyectos con esos filtros")
+                                .font(.dsHeading)
+                            Text("Prueba quitando algún filtro o buscando otra ciudad.")
+                                .font(.dsCaption)
+                                .foregroundStyle(.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        Button("Quitar filtros") {
+                            selectedState = nil
+                            minYield = 0
+                            searchText = ""
+                        }
+                        .font(.dsCaption.weight(.semibold))
+                        .foregroundStyle(.chain500)
+                        .accessibilityLabel("Quitar todos los filtros y ver todos los proyectos")
                     }
+                    .padding(32)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {

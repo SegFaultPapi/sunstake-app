@@ -64,3 +64,35 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# ─── Solidity / Foundry (contracts/) ────────────────────────────────────────
+
+# Artefactos de compilación — regenerados con `forge build`
+contracts/out/
+contracts/cache/
+
+# Dependencias — instaladas con `forge install`
+contracts/lib/
+
+# Logs de deployment en vivo (contienen tx hashes y addresses reales)
+contracts/broadcast/*/31337/
+contracts/broadcast/*/84532/run-latest.json
+contracts/broadcast/*/8453/run-latest.json
+
+# Variables de entorno — nunca al repo (claves privadas, API keys)
+.env
+.env.*
+!.env.example
+contracts/.env
+contracts/.env.*
+!contracts/.env.example
+
+# Hardhat (por si se agrega en el futuro)
+artifacts/
+cache/
+typechain-types/
+node_modules/
+
+# Cobertura de tests Solidity
+lcov.info
+coverage/

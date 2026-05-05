@@ -30,6 +30,18 @@ struct OnboardingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                if currentPage < pages.count - 1 {
+                    Button("Saltar") {
+                        appState.hasCompletedOnboarding = true
+                    }
+                    .font(.dsCaption.weight(.medium))
+                    .foregroundStyle(.textSecondary)
+                    .padding([.top, .trailing], 20)
+                    .accessibilityLabel("Saltar introducción")
+                }
+            }
             TabView(selection: $currentPage) {
                 ForEach(pages.indices, id: \.self) { i in
                     OnboardingPageView(page: pages[i])
@@ -69,7 +81,7 @@ struct OnboardingView: View {
             .padding(.bottom, 40)
             .accessibilityLabel(currentPage < pages.count - 1 ? "Siguiente página" : "Comenzar app")
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(.systemBackground).ignoresSafeArea())
     }
 }
 

@@ -128,10 +128,10 @@ extension Color {
     static let textPrimary    = Color(UIColor.label)
     static let textSecondary  = Color(UIColor.secondaryLabel)
 
-    // Status
-    static let success = Color.green
-    static let warning = Color.orange
-    static let danger  = Color.red
+    // Status — hex fijos para WCAG AA en ambos modos
+    static let success = Color(hex: "#22C55E")
+    static let warning = Color(hex: "#F59E0B")
+    static let danger  = Color(hex: "#EF4444")
 }
 
 // MARK: - Font tokens

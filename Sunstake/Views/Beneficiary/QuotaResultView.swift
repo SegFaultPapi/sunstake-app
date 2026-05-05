@@ -6,6 +6,7 @@ struct QuotaResultView: View {
     @State private var selectedTerm: PaymentTerm
     @State private var showSummary = false
     @State private var adjustedResult: QuotaResult
+    @State private var showBreakdown = false
 
     init(result: QuotaResult) {
         self.result = result
@@ -37,8 +38,24 @@ struct QuotaResultView: View {
                 .background(Color.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
-                // HCAI: 4-variable breakdown
-                HCAIBreakdownView(result: adjustedResult)
+                // HCAI: 4-variable breakdown — auto-abre para transparencia, colapsable por control del usuario
+                DisclosureGroup(
+                    isExpanded: $showBreakdown,
+                    content: { HCAIBreakdownView(result: adjustedResult).padding(.top, 8) },
+                    label: {
+                        Label("¿Por qué esta cuota?", systemImage: "magnifyingglass")
+                            .font(.dsHeading)
+                            .foregroundStyle(.textPrimary)
+                    }
+                )
+                .padding(16)
+                .background(Color.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .onAppear {
+                    withAnimation(.easeOut(duration: 0.4).delay(0.5)) {
+                        showBreakdown = true
+                    }
+                }
 
                 // HCAI: Natural language explanation (Foundation Models placeholder)
                 VStack(alignment: .leading, spacing: 8) {
@@ -79,6 +96,7 @@ struct QuotaResultView: View {
                     HStack(spacing: 0) {
                         ForEach(PaymentTerm.allCases) { term in
                             Button {
+                                UISelectionFeedbackGenerator().selectionChanged()
                                 selectedTerm = term
                                 recalculate(term: term)
                             } label: {

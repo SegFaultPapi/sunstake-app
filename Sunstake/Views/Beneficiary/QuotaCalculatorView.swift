@@ -8,10 +8,15 @@ struct QuotaCalculatorView: View {
     @State private var showResult = false
     @State private var isCalculating = false
     @State private var result: QuotaResult? = nil
+    @State private var facturaEdited = false
 
-    var canCalculate: Bool {
-        !facturaMXN.isEmpty && Double(facturaMXN) != nil && !ubicacion.isEmpty
-    }
+    private let ciudadesDisponibles = [
+        "Guadalajara", "CDMX", "Monterrey", "Mérida", "Tijuana",
+        "Puebla", "León", "Querétaro", "San Luis Potosí", "Hermosillo"
+    ]
+
+    var facturaValida: Bool { Double(facturaMXN) != nil }
+    var canCalculate: Bool { !facturaMXN.isEmpty && facturaValida && !ubicacion.isEmpty }
 
     var body: some View {
         NavigationStack {
@@ -41,6 +46,7 @@ struct QuotaCalculatorView: View {
                             TextField("1,200", text: $facturaMXN)
                                 .keyboardType(.numberPad)
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .onChange(of: facturaMXN) { _, _ in facturaEdited = true }
                             Text("MXN")
                                 .foregroundStyle(.textSecondary)
                         }
@@ -48,23 +54,43 @@ struct QuotaCalculatorView: View {
                         .background(Color.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .accessibilityLabel("Monto de factura mensual en pesos")
+
+                        if facturaEdited && !facturaMXN.isEmpty && !facturaValida {
+                            Label("Ingresa solo números", systemImage: "exclamationmark.circle.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.danger)
+                                .transition(.opacity.animation(.easeInOut))
+                        }
                     }
 
                     // Input: Ubicación
                     VStack(alignment: .leading, spacing: 8) {
                         Text("¿Dónde está tu casa?")
                             .font(.dsHeading)
-                        HStack {
-                            Image(systemName: "location.fill")
-                                .foregroundStyle(.secondary500)
-                            TextField("Ciudad o código postal", text: $ubicacion)
-                                .font(.dsBody)
-                        }
-                        .padding()
-                        .background(Color.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                        // Quick location chips
+                        Menu {
+                            ForEach(ciudadesDisponibles, id: \.self) { city in
+                                Button(city) { ubicacion = city }
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: ubicacion.isEmpty ? "location" : "location.fill")
+                                    .foregroundStyle(ubicacion.isEmpty ? .textSecondary : .secondary500)
+                                Text(ubicacion.isEmpty ? "Elige tu ciudad" : ubicacion)
+                                    .font(.dsBody)
+                                    .foregroundStyle(ubicacion.isEmpty ? .textSecondary : .textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(.caption)
+                                    .foregroundStyle(.textSecondary)
+                            }
+                            .padding()
+                            .background(Color.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .accessibilityLabel("Seleccionar ciudad. \(ubicacion.isEmpty ? "Ninguna seleccionada" : "Ciudad: \(ubicacion)")")
+
+                        // Quick chips para acceso rápido
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(["Guadalajara", "CDMX", "Monterrey", "Mérida", "Tijuana"], id: \.self) { city in

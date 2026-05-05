@@ -1,5 +1,43 @@
 import SwiftUI
 
+// MARK: - Copyable transaction hash
+
+struct CopyableHashView: View {
+    let label: String
+    let hash: String
+    @State private var copied = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.textSecondary)
+                Text(hash.prefix(8) + "..." + hash.suffix(6))
+                    .font(.system(.caption, design: .monospaced, weight: .medium))
+                    .foregroundStyle(.chain500)
+            }
+            Spacer()
+            Button {
+                UIPasteboard.general.string = hash
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                withAnimation { copied = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation { copied = false }
+                }
+            } label: {
+                Image(systemName: copied ? "checkmark.circle.fill" : "doc.on.doc")
+                    .foregroundStyle(copied ? .success : .chain500)
+                    .font(.body)
+            }
+            .accessibilityLabel(copied ? "Hash copiado" : "Copiar código de verificación")
+        }
+        .padding(12)
+        .background(Color.chain500.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
 // MARK: - Biometric confirmation sheet
 
 struct BiometricConfirmationSheet: View {
@@ -59,9 +97,9 @@ struct BiometricConfirmationSheet: View {
             VStack(spacing: 12) {
                 Button {
                     isAuthenticating = true
-                    // Simulate Face ID auth (real: use LocalAuthentication)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                         isAuthenticating = false
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
                         onConfirm()
                     }
                 } label: {

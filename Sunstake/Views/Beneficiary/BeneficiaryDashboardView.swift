@@ -180,32 +180,32 @@ struct PaymentRow: View {
     let payment: Payment
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(payment.fecha, style: .date)
-                    .font(.dsCaption.weight(.medium))
-                Text("$\(String(format: "%.2f", payment.montoUSDC)) USDC")
-                    .font(.caption2)
-                    .foregroundStyle(.textSecondary)
-            }
-            Spacer()
-            Text("$\(Int(payment.montoMXN)) MXN")
-                .font(.dsCaption.weight(.semibold))
-
-            Button {
-                if let url = URL(string: "https://sepolia.basescan.org/tx/\(payment.txHash)") {
-                    UIApplication.shared.open(url)
-                }
-            } label: {
-                HStack(spacing: 3) {
-                    Text(payment.txHashCorto)
-                        .font(.caption2.monospaced())
-                    Image(systemName: "arrow.up.right.square")
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(payment.fecha, style: .date)
+                        .font(.dsCaption.weight(.medium))
+                    Text("$\(String(format: "%.2f", payment.montoUSDC)) USDC")
                         .font(.caption2)
+                        .foregroundStyle(.textSecondary)
                 }
-                .foregroundStyle(.chain500)
+                Spacer()
+                HStack(spacing: 8) {
+                    Text("$\(Int(payment.montoMXN)) MXN")
+                        .font(.dsCaption.weight(.semibold))
+                    Button {
+                        if let url = URL(string: "https://sepolia.basescan.org/tx/\(payment.txHash)") {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.right.square")
+                            .font(.caption)
+                            .foregroundStyle(.chain500)
+                    }
+                    .accessibilityLabel("Ver transacción en Basescan")
+                }
             }
-            .accessibilityLabel("Ver transacción \(payment.txHashCorto) en Basescan")
+            CopyableHashView(label: "Código de verificación", hash: payment.txHash)
         }
         .padding(.vertical, 4)
         Divider()
