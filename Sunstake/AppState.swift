@@ -4,10 +4,19 @@ import Observation
 
 @Observable
 final class AppState {
+    private let authService = AuthService()
+    private let walletSessionService = WalletSessionService()
+    private let blockchainService = BlockchainService()
+    let networkConfig: NetworkConfig = .baseSepolia
+
     // MARK: - Auth state
     var isLoggedIn: Bool = false
     var userName: String = ""
     var userEmail: String = ""
+    var walletAddress: String = ""
+    var walletProviderLabel: String = ""
+    var walletBalanceUSDC: Double = 124.50
+    var hasBiometricAccess: Bool = true
 
     // MARK: - Navigation state
     var userRole: UserRole = .none
@@ -59,32 +68,41 @@ final class AppState {
         transactionState = .mintingTokens
         try? await Task.sleep(nanoseconds: 1_200_000_000)
         transactionState = .confirming
-        try? await Task.sleep(nanoseconds: 800_000_000)
-        let hash = "0x\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().prefix(40))"
-        transactionState = .success(txHash: hash)
-        activeProject = SolarProject.mockProjects[0]
+        do {
+            let hash = try await blockchainService.publishProject()
+            transactionState = .success(txHash: hash)
+            activeProject = SolarProject.mockProjects[0]
+        } catch {
+            transactionState = .error(message: error.localizedDescription)
+        }
     }
 
     func purchaseTokens(montoUSD: Double) async {
         transactionState = .processing
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
-        let hash = "0x\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().prefix(40))"
-        transactionState = .purchaseSuccess(txHash: hash)
+        do {
+            let hash = try await blockchainService.purchaseTokens()
+            transactionState = .purchaseSuccess(txHash: hash)
+        } catch {
+            transactionState = .error(message: error.localizedDescription)
+        }
     }
 
     func payMonthlyQuota() async {
         transactionState = .processing
-        try? await Task.sleep(nanoseconds: 1_800_000_000)
-        let hash = "0x\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().prefix(40))"
-        let newPayment = Payment(
-            id: UUID(), fecha: Date(),
-            montoMXN: quotaResult?.cuotaMXN ?? 850,
-            montoUSDC: (quotaResult?.cuotaUSDC ?? 48.57),
-            txHash: hash
-        )
-        paymentHistory.insert(newPayment, at: 0)
-        ownershipPct = min(1.0, ownershipPct + (1.0 / Double(quotaResult?.plazoMeses ?? 36)))
-        transactionState = .purchaseSuccess(txHash: hash)
+        do {
+            let hash = try await blockchainService.payMonthlyQuota()
+            let newPayment = Payment(
+                id: UUID(), fecha: Date(),
+                montoMXN: quotaResult?.cuotaMXN ?? 850,
+                montoUSDC: (quotaResult?.cuotaUSDC ?? 48.57),
+                txHash: hash
+            )
+            paymentHistory.insert(newPayment, at: 0)
+            ownershipPct = min(1.0, ownershipPct + (1.0 / Double(quotaResult?.plazoMeses ?? 36)))
+            transactionState = .purchaseSuccess(txHash: hash)
+        } catch {
+            transactionState = .error(message: error.localizedDescription)
+        }
     }
 
     func resetTransaction() {
@@ -93,21 +111,38 @@ final class AppState {
 
     // MARK: - Auth actions
 
-    func login(email: String, name: String) {
-        userEmail = email
-        userName = name.isEmpty ? email.components(separatedBy: "@").first ?? "Usuario" : name
+    func sendAccessCode(email: String) async throws {
+        try await authService.sendOTP(to: email)
+    }
+
+    func login(email: String, otp: String) async throws {
+        let session = try await authService.loginWithOTP(email: email, otp: otp)
+        let wallet = try await walletSessionService.createOrRestoreWallet(email: session.email)
+        userEmail = session.email
+        userName = session.fullName
+        walletAddress = wallet.address
+        walletProviderLabel = wallet.providerName
         isLoggedIn = true
     }
 
-    func register(name: String, email: String) {
-        userName = name
-        userEmail = email
+    func register(name: String, email: String) async throws {
+        let session = try await authService.register(name: name, email: email)
+        let wallet = try await walletSessionService.createOrRestoreWallet(email: session.email)
+        userName = session.fullName
+        userEmail = session.email
+        walletAddress = wallet.address
+        walletProviderLabel = wallet.providerName
         isLoggedIn = true
     }
 
     func logout() {
         isLoggedIn = false
         userRole = .none
+        walletAddress = ""
+        walletProviderLabel = ""
         // hasCompletedOnboarding se mantiene: el onboarding solo se muestra una vez
+        Task {
+            await walletSessionService.logout()
+        }
     }
 }

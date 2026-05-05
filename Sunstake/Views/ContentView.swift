@@ -114,22 +114,36 @@ struct AccountView: View {
                     HStack {
                         Label("Dirección wallet", systemImage: "wallet.pass")
                         Spacer()
-                        Text("0x71a3...f9c2")
+                        Text(shortAddress(appState.walletAddress))
+                            .font(.dsCaption)
+                            .foregroundStyle(.textSecondary)
+                    }
+                    HStack {
+                        Label("Proveedor wallet", systemImage: "shippingbox")
+                        Spacer()
+                        Text(appState.walletProviderLabel.isEmpty ? "—" : appState.walletProviderLabel)
                             .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                     }
                     HStack {
                         Label("Balance USDC", systemImage: "dollarsign.circle")
                         Spacer()
-                        Text("$124.50 USDC")
+                        Text(String(format: "$%.2f USDC", appState.walletBalanceUSDC))
                             .font(.dsCaption.weight(.semibold))
                             .foregroundStyle(.chain500)
                     }
+                    HStack {
+                        Label("Red activa", systemImage: "link")
+                        Spacer()
+                        Text(appState.networkConfig.networkLabel)
+                            .font(.dsCaption)
+                            .foregroundStyle(.textSecondary)
+                    }
                 }
                 Section("Seguridad") {
-                    Label("Face ID activo", systemImage: "faceid")
-                        .foregroundStyle(.success)
-                    Label("Contraseña PIN", systemImage: "lock")
+                    Label(appState.hasBiometricAccess ? "Face ID / Touch ID activo" : "Biometría no disponible", systemImage: "faceid")
+                        .foregroundStyle(appState.hasBiometricAccess ? .success : .warning)
+                    Label("PIN de 6 digitos", systemImage: "lock")
                 }
                 Section("Notificaciones") {
                     Toggle("Pagos confirmados", isOn: .constant(true))
@@ -145,5 +159,10 @@ struct AccountView: View {
             }
             .navigationTitle("Mi cuenta")
         }
+    }
+
+    private func shortAddress(_ value: String) -> String {
+        guard value.count > 10 else { return value.isEmpty ? "—" : value }
+        return "\(value.prefix(6))...\(value.suffix(4))"
     }
 }

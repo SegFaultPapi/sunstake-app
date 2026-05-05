@@ -12,33 +12,27 @@ struct AuthView: View {
 
     // Campos compartidos
     @State private var email = ""
-    @State private var password = ""
-    @State private var showPassword = false
+    @State private var otpCode = ""
 
     // Solo registro
     @State private var name = ""
-    @State private var confirmPassword = ""
-    @State private var showConfirm = false
+    @State private var pinCode = ""
 
     // Feedback
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
     @State private var faceIDLoading = false
+    @State private var otpSent = false
 
     private var canSubmit: Bool {
         switch mode {
         case .login:
-            return email.contains("@") && !password.isEmpty
+            return email.contains("@") && otpCode.count == 6
         case .register:
             return !name.trimmingCharacters(in: .whitespaces).isEmpty
                 && email.contains("@")
-                && password.count >= 6
-                && password == confirmPassword
+                && pinCode.count == 6
         }
-    }
-
-    private var passwordMismatch: Bool {
-        mode == .register && !confirmPassword.isEmpty && password != confirmPassword
     }
 
     var body: some View {
@@ -78,29 +72,25 @@ struct AuthView: View {
                         textContentType: .emailAddress
                     )
 
-                    PasswordField(
-                        placeholder: mode == .login ? "Contraseña" : "Contraseña (mín. 6 caracteres)",
-                        password: $password,
-                        show: $showPassword
-                    )
-
                     if mode == .register {
-                        PasswordField(
-                            placeholder: "Confirmar contraseña",
-                            password: $confirmPassword,
-                            show: $showConfirm,
-                            isError: passwordMismatch
+                        AuthField(
+                            icon: "lock",
+                            placeholder: "PIN de 6 dígitos",
+                            text: $pinCode,
+                            isSecure: false,
+                            keyboardType: .numberPad,
+                            textContentType: .oneTimeCode
                         )
                         .transition(.move(edge: .bottom).combined(with: .opacity))
-
-                        if passwordMismatch {
-                            Label("Las contraseñas no coinciden", systemImage: "exclamationmark.circle.fill")
-                                .font(.dsCaption2)
-                                .foregroundStyle(.danger)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, DSSpacing.xs)
-                                .transition(.opacity)
-                        }
+                    } else {
+                        AuthField(
+                            icon: "number.square",
+                            placeholder: "Código de acceso (6 dígitos)",
+                            text: $otpCode,
+                            isSecure: false,
+                            keyboardType: .numberPad,
+                            textContentType: .oneTimeCode
+                        )
                     }
                 }
 
@@ -138,6 +128,18 @@ struct AuthView: View {
                 }
                 .disabled(!canSubmit || isLoading)
                 .accessibilityLabel(mode == .login ? "Iniciar sesión" : "Crear cuenta")
+
+                if mode == .login {
+                    Button {
+                        sendOTP()
+                    } label: {
+                        Text(otpSent ? "Reenviar código" : "Enviar código por correo")
+                            .font(.dsCaption)
+                            .foregroundStyle(.secondary500)
+                    }
+                    .disabled(isLoading || !email.contains("@"))
+                    .accessibilityLabel("Enviar código de acceso por correo")
+                }
 
                 // Face ID (solo login)
                 if mode == .login {
@@ -184,7 +186,7 @@ struct AuthView: View {
                     Image(systemName: "lock.shield.fill")
                         .font(.caption)
                         .foregroundStyle(.chain500)
-                    Text("Tus datos se procesan en tu dispositivo. Nunca compartimos tu información financiera con terceros.")
+                    Text("Tu cuenta de pagos se crea automáticamente al entrar. No necesitas saber de cripto ni guardar frases de seguridad.")
                         .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
@@ -230,26 +232,48 @@ struct AuthView: View {
         errorMessage = nil
         isLoading = true
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            isLoading = false
-            switch mode {
-            case .login:
-                appState.login(email: email, name: "")
-            case .register:
-                appState.register(name: name.trimmingCharacters(in: .whitespaces), email: email)
+        Task {
+            defer { isLoading = false }
+            do {
+                switch mode {
+                case .login:
+                    try await appState.login(email: email, otp: otpCode)
+                case .register:
+                    try await appState.register(name: name.trimmingCharacters(in: .whitespaces), email: email)
+                }
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+            } catch {
+                errorMessage = error.localizedDescription
             }
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
+    }
+
+    private func sendOTP() {
+        errorMessage = nil
+        isLoading = true
+        Task {
+            defer { isLoading = false }
+            do {
+                try await appState.sendAccessCode(email: email)
+                otpSent = true
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 
     private func loginWithFaceID() {
         faceIDLoading = true
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            faceIDLoading = false
-            appState.login(email: "demo@sunstake.mx", name: "Usuario Demo")
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        Task {
+            defer { faceIDLoading = false }
+            do {
+                try await appState.login(email: "demo@sunstake.mx", otp: "123456")
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }
