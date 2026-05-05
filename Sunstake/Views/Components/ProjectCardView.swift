@@ -1,124 +1,85 @@
 import SwiftUI
 
+/// Card compacta para el explorador de proyectos.
+/// Muestra solo la información esencial; el detalle completo
+/// (CO₂, plazo, contrato, estimador) está en ProjectDetailView.
 struct ProjectCardView: View {
     let project: SolarProject
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DSSpacing.md) {
-            // Header
-            HStack {
-                VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "house.fill")
-                            .font(.caption)
-                            .foregroundStyle(.secondary500)
-                        Text("\(project.ciudad), \(project.estado)")
-                            .font(.dsHeading)
-                    }
-                    Text("Beneficiario: \(project.beneficiario)")
-                        .font(.dsCaption2)
-                        .foregroundStyle(.textSecondary)
+        HStack(alignment: .center, spacing: 12) {
+            // Left: location + progress
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    Image(systemName: "house.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary500)
+                    Text("\(project.ciudad), \(project.estado)")
+                        .font(.dsSubhead.weight(.semibold))
+                        .foregroundStyle(.textPrimary)
                 }
-                Spacer()
-                StatusBadge(status: project.status)
-            }
 
-            // Funding progress bar
-            VStack(alignment: .leading, spacing: 4) {
+                // Barra de financiamiento
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(Color.gray.opacity(0.12))
-                            .frame(height: 6)
-                        RoundedRectangle(cornerRadius: 4)
+                            .frame(height: 4)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(
                                 project.status == .funded
-                                ? AnyShapeStyle(Color.gray)
-                                : AnyShapeStyle(LinearGradient(colors: [.chain500, .chain500.opacity(0.6)],
-                                                 startPoint: .leading, endPoint: .trailing))
+                                    ? AnyShapeStyle(Color.gray)
+                                    : AnyShapeStyle(
+                                        LinearGradient(
+                                            colors: [.chain500, .chain500.opacity(0.55)],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
                             )
-                            .frame(width: geo.size.width * project.porcentajeFinanciado, height: 6)
+                            .frame(
+                                width: geo.size.width * project.porcentajeFinanciado,
+                                height: 4
+                            )
                     }
                 }
-                .frame(height: 6)
+                .frame(height: 4)
 
-                HStack {
-                    Text("\(Int(project.porcentajeFinanciado * 100))% financiado")
-                        .font(.caption2)
-                        .foregroundStyle(.textSecondary)
-                    Spacer()
-                    Text("$\(Int(project.montoTotalUSD)) USD total")
-                        .font(.caption2)
-                        .foregroundStyle(.textSecondary)
-                }
+                Text("\(Int(project.porcentajeFinanciado * 100))% financiado")
+                    .font(.dsCaption2)
+                    .foregroundStyle(.textSecondary)
             }
 
-            // Metrics row
-            HStack(spacing: 0) {
-                CardMetric(
-                    icon: "chart.line.uptrend.xyaxis",
-                    iconColor: .chain500,
-                    value: "\(String(format: "%.1f", project.rendimientoAnualPct))%",
-                    label: "anual"
-                )
-                Divider().frame(height: 28)
-                CardMetric(
-                    icon: "calendar",
-                    iconColor: .secondary500,
-                    value: "\(project.mesesRestantes) m",
-                    label: "restantes"
-                )
-                Divider().frame(height: 28)
-                CardMetric(
-                    icon: "leaf.fill",
-                    iconColor: .success,
-                    value: "\(String(format: "%.1f", project.co2ToneladasAnio)) ton",
-                    label: "CO₂/año"
-                )
-                Divider().frame(height: 28)
-                CardMetric(
-                    icon: "dollarsign.circle.fill",
-                    iconColor: .chain500,
-                    value: "desde $\(Int(project.montoMinUSD))",
-                    label: "USD"
-                )
+            Spacer(minLength: 8)
+
+            // Right: yield + min + status + chevron
+            VStack(alignment: .trailing, spacing: 4) {
+                StatusBadge(status: project.status)
+
+                Text("\(String(format: "%.1f", project.rendimientoAnualPct))% anual")
+                    .font(.dsCaption.weight(.bold))
+                    .foregroundStyle(.chain500)
+
+                Text("desde $\(Int(project.montoMinUSD)) USD")
+                    .font(.dsCaption2)
+                    .foregroundStyle(.textSecondary)
             }
-            .background(Color.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Image(systemName: "chevron.right")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Color.gray.opacity(0.35))
         }
-        .padding(16)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 1)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             "\(project.ciudad), \(project.estado). " +
             "\(String(format: "%.1f", project.rendimientoAnualPct))% anual. " +
             "\(Int(project.porcentajeFinanciado * 100))% financiado. " +
-            "\(String(format: "%.1f", project.co2ToneladasAnio)) toneladas de CO₂ evitadas al año."
+            "Inversión mínima $\(Int(project.montoMinUSD)) USD. Toca para ver detalles."
         )
-    }
-}
-
-struct CardMetric: View {
-    let icon: String
-    let iconColor: Color
-    let value: String
-    let label: String
-
-    var body: some View {
-        VStack(spacing: DSSpacing.xs) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(iconColor)
-            Text(value)
-                .font(.dsCaption2.weight(.bold))
-                .foregroundStyle(.textPrimary)
-            Text(label)
-                .font(.dsCaption2)
-                .foregroundStyle(.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, DSSpacing.sm)
     }
 }

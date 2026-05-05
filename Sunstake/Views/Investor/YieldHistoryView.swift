@@ -52,32 +52,33 @@ struct YieldHistoryView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                     // Active investments
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("Mis inversiones activas")
                             .font(.dsHeading)
 
                         ForEach(appState.investedProjects) { project in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 0) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text("\(project.ciudad), \(project.estado)")
                                         .font(.dsCaption.weight(.semibold))
-                                    Text("\(project.mesesRestantes) meses restantes · \(String(format: "%.1f", project.rendimientoAnualPct))% anual")
-                                        .font(.caption2)
+                                    Text("\(project.mesesRestantes) m · \(String(format: "%.1f", project.rendimientoAnualPct))% anual")
+                                        .font(.dsCaption2)
                                         .foregroundStyle(.textSecondary)
                                 }
                                 Spacer()
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    Text("$\(String(format: "%.2f", 50 * project.rendimientoMensualPct)) USD/mes")
-                                        .font(.dsCaption.weight(.bold))
-                                        .foregroundStyle(.chain500)
-                                    Text("rendimiento est.")
-                                        .font(.caption2)
-                                        .foregroundStyle(.textSecondary)
-                                }
+                                Text("$\(String(format: "%.2f", 50 * project.rendimientoMensualPct))/mes")
+                                    .font(.dsCaption.weight(.bold))
+                                    .foregroundStyle(.chain500)
                             }
-                            .padding(14)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
                             .background(Color.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .accessibilityLabel(
+                                "\(project.ciudad), \(project.estado). " +
+                                "\(project.mesesRestantes) meses restantes. " +
+                                "Rendimiento estimado $\(String(format: "%.2f", 50 * project.rendimientoMensualPct)) USD al mes."
+                            )
                         }
                     }
 
@@ -133,54 +134,57 @@ struct YieldHistoryView: View {
     }
 }
 
+/// Fila compacta de historial de rendimientos.
+/// Muestra proyecto + fecha + monto en una sola línea;
+/// el código de verificación queda en una línea secundaria pequeña.
 struct YieldEntryRow: View {
     let entry: YieldEntry
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(entry.proyecto)
                         .font(.dsCaption.weight(.medium))
+                        .foregroundStyle(.textPrimary)
                     Text(entry.fecha, style: .date)
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
                 Spacer()
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: 1) {
                     Text("+$\(String(format: "%.2f", entry.montoUSDC)) USDC")
                         .font(.dsCaption.weight(.bold))
                         .foregroundStyle(.success)
                     Text("≈ $\(Int(entry.montoMXN)) MXN")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
             }
-            HStack {
-                Image(systemName: "link.circle")
-                    .font(.caption2)
-                    .foregroundStyle(.chain500)
+            .padding(.top, 10)
+            .padding(.bottom, 5)
+
+            // Línea de verificación — siempre visible, tamaño mínimo
+            HStack(spacing: 3) {
+                Image(systemName: "link")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.chain500.opacity(0.7))
                 Button {
                     if let url = URL(string: "https://sepolia.basescan.org/tx/\(entry.txHash)") {
                         UIApplication.shared.open(url)
                     }
                 } label: {
-                    HStack(spacing: 4) {
-                        Text(entry.txHashCorto)
-                            .font(.caption2.monospaced())
-                        Text("· Ver en Basescan")
-                            .font(.caption2)
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.chain500)
+                    Text("\(entry.txHashCorto) · Basescan ↗")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.chain500.opacity(0.75))
                 }
                 .accessibilityLabel("Ver transacción \(entry.txHashCorto) en Basescan")
                 Spacer()
             }
+            .padding(.bottom, 10)
+
+            Divider()
         }
-        .padding(.vertical, 8)
-        Divider()
     }
 }
 
