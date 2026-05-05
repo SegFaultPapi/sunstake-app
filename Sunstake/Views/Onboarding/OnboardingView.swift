@@ -109,21 +109,21 @@ struct OnboardingPageView: View {
             }
             VStack(spacing: 16) {
                 Text(page.title)
-                    .font(.system(.title, design: .rounded, weight: .bold))
+                    .font(.dsTitle)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.textPrimary)
 
                 Text(page.subtitle)
-                    .font(.dsBody)
+                    .font(.dsSubhead)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.textSecondary)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, DSSpacing.sm)
 
                 Text(page.accentText)
-                    .font(.dsCaption.weight(.semibold))
+                    .font(.dsFootnote.weight(.semibold))
                     .foregroundStyle(.secondary500)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, DSSpacing.md)
+                    .padding(.vertical, DSSpacing.sm)
                     .background(Color.secondary500.opacity(0.1))
                     .clipShape(Capsule())
             }

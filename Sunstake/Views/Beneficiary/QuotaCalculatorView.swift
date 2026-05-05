@@ -30,10 +30,10 @@ struct QuotaCalculatorView: View {
                             .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                         // HCAI: transparencia de fuente
-                        Label("Cálculo realizado en tu dispositivo · Fuente: NASA POWER API", systemImage: "cpu")
-                            .font(.caption2)
+                        Label("Cálculo en tu dispositivo · Fuente: NASA POWER API", systemImage: "cpu")
+                            .font(.dsCaption2)
                             .foregroundStyle(.chain500)
-                            .padding(.top, 2)
+                            .padding(.top, DSSpacing.xs)
                     }
 
                     // Input: Factura
@@ -134,7 +134,7 @@ struct QuotaCalculatorView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
 
                         Text("Plazos más largos = cuotas más bajas")
-                            .font(.caption2)
+                            .font(.dsCaption2)
                             .foregroundStyle(.textSecondary)
                     }
 

@@ -154,15 +154,15 @@ struct ReturnRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.dsCaption)
+                .font(.dsSubhead)
                 .foregroundStyle(.textSecondary)
             Spacer()
             Text(value)
-                .font(accent ? .system(.title3, design: .rounded, weight: .bold) : .dsCaption.weight(.semibold))
+                .font(accent ? .dsTitle : .dsSubhead.weight(.semibold))
                 .foregroundStyle(accent ? .chain500 : .textPrimary)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, DSSpacing.md)
+        .padding(.vertical, DSSpacing.sm + 4)
     }
 }
 

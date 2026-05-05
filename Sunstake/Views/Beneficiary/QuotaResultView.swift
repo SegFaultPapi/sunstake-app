@@ -22,21 +22,21 @@ struct QuotaResultView: View {
                 ConfidenceBarView(level: adjustedResult.confianza)
 
                 // Main quota card
-                VStack(spacing: 4) {
+                VStack(spacing: 6) {
                     Text("Tu cuota mensual")
-                        .font(.dsCaption)
+                        .font(.dsSubhead)
                         .foregroundStyle(.textSecondary)
                     Text("$\(Int(adjustedResult.cuotaMXN)) MXN/mes")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
+                        .font(.dsDisplay)
                         .foregroundStyle(.secondary500)
                     Text("≈ $\(String(format: "%.2f", adjustedResult.cuotaUSDC)) USDC")
-                        .font(.dsCaption)
+                        .font(.dsFootnote)
                         .foregroundStyle(.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(24)
+                .padding(DSSpacing.lg)
                 .background(Color.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: DSRadius.lg))
 
                 // HCAI: 4-variable breakdown — auto-abre para transparencia, colapsable por control del usuario
                 DisclosureGroup(
@@ -127,9 +127,9 @@ struct QuotaResultView: View {
 
                 // Savings estimate
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: DSSpacing.xs) {
                         Text("Ahorro estimado mensual")
-                            .font(.dsCaption)
+                            .font(.dsSubhead)
                             .foregroundStyle(.textSecondary)
                         Text("$\(Int(adjustedResult.ahorroEstimadoMXN)) MXN/mes vs. CFE")
                             .font(.dsHeading)
@@ -137,12 +137,12 @@ struct QuotaResultView: View {
                     }
                     Spacer()
                     Image(systemName: "arrow.down.circle.fill")
-                        .font(.system(size: 32))
+                        .font(.system(size: 36))
                         .foregroundStyle(.success)
                 }
-                .padding(16)
+                .padding(DSSpacing.md)
                 .background(Color.success.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: DSRadius.lg))
 
                 // CTAs
                 VStack(spacing: 12) {

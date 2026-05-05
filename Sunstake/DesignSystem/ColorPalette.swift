@@ -134,16 +134,57 @@ extension Color {
     static let danger  = Color(hex: "#EF4444")
 }
 
+// MARK: - Spacing tokens (4pt grid)
+
+enum DSSpacing {
+    static let xs:  CGFloat = 4
+    static let sm:  CGFloat = 8
+    static let md:  CGFloat = 16
+    static let lg:  CGFloat = 24
+    static let xl:  CGFloat = 32
+    static let xxl: CGFloat = 48
+}
+
+// MARK: - Radius tokens
+
+enum DSRadius {
+    static let sm:   CGFloat = 10   // chips, inner rows
+    static let md:   CGFloat = 14   // inputs, buttons
+    static let lg:   CGFloat = 18   // primary cards
+    static let pill: CGFloat = 999  // capsule alias
+}
+
 // MARK: - Font tokens
+//
+// 9-level scale: Display(44) › Number(36) › Title(22) › Heading(17) ›
+//                Subhead(15) › Body(16) › Footnote(13) › Caption(12) › Caption2(11)
+//
+// dsBody usa .callout (16pt) en lugar de .body (17pt) para separarse
+// visualmente de dsHeading (17pt semibold) y crear jerarquía real.
 
 extension Font {
-    static let dsTitle   = Font.system(.title2,   design: .rounded, weight: .bold)
-    static let dsHeading = Font.system(.headline, design: .rounded, weight: .semibold)
-    static let dsBody    = Font.system(.body,     design: .rounded)
-    static let dsCaption = Font.system(.caption,  design: .rounded)
+    // Hero financial figures — cuota principal, yield total, monto de inversión
+    static let dsDisplay  = Font.system(size: 44, weight: .bold,      design: .rounded)
+    // Secondary large numbers — ring de propiedad, totales secundarios
+    static let dsNumber   = Font.system(size: 36, weight: .bold,      design: .rounded)
+    // Screen section headers
+    static let dsTitle    = Font.system(.title2,      design: .rounded, weight: .bold)
+    // Card titles, primary interactive labels
+    static let dsHeading  = Font.system(.headline,    design: .rounded, weight: .semibold)
+    // Descriptive subtitles and metadata (15pt vs 17pt heading → jerarquía clara)
+    static let dsSubhead  = Font.system(.subheadline, design: .rounded, weight: .medium)
+    // Readable paragraphs (16pt callout, 1pt abajo de heading para diferenciarse)
+    static let dsBody     = Font.system(.callout,     design: .rounded)
+    // Supporting context, source labels
+    static let dsFootnote = Font.system(.footnote,    design: .rounded)
+    // Chips, data labels
+    static let dsCaption  = Font.system(.caption,     design: .rounded)
+    // Minimal labels, compliance text — formaliza el .caption2 ad-hoc
+    static let dsCaption2 = Font.system(.caption2,    design: .rounded)
 }
 
 // MARK: - ShapeStyle dot-syntax (lets call sites use `.foregroundStyle(.chain500)`).
+// Incluye tokens de fuente para uso en `.font(.dsDisplay)` etc.
 
 extension ShapeStyle where Self == Color {
     static var primary300:  Color { .primary300 }

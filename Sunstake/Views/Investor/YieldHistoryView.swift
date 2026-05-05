@@ -17,15 +17,15 @@ struct YieldHistoryView: View {
 
                     // Summary header
                     VStack(spacing: 16) {
-                        VStack(spacing: 4) {
+                        VStack(spacing: 6) {
                             Text("Rendimiento total acumulado")
-                                .font(.dsCaption)
+                                .font(.dsSubhead)
                                 .foregroundStyle(.textSecondary)
                             Text("$\(String(format: "%.2f", totalUSDC)) USDC")
-                                .font(.system(size: 38, weight: .bold, design: .rounded))
+                                .font(.dsDisplay)
                                 .foregroundStyle(.chain500)
                             Text("≈ $\(Int(totalMXN)) MXN")
-                                .font(.dsCaption)
+                                .font(.dsFootnote)
                                 .foregroundStyle(.textSecondary)
                         }
                         .frame(maxWidth: .infinity)
@@ -189,12 +189,12 @@ struct YieldSummaryChip: View {
     let value: String
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: DSSpacing.xs) {
             Text(value)
-                .font(.dsCaption.weight(.bold))
+                .font(.dsFootnote.weight(.bold))
                 .foregroundStyle(.chain500)
             Text(label)
-                .font(.caption2)
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)

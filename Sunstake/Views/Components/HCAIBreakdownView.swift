@@ -5,15 +5,15 @@ struct HCAIBreakdownView: View {
     let result: QuotaResult
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DSSpacing.sm) {
             HStack {
                 Label("Por qué esta cuota", systemImage: "magnifyingglass")
                     .font(.dsHeading)
                 Spacer()
                 Text("4 variables")
-                    .font(.caption2.weight(.semibold))
+                    .font(.dsCaption2.weight(.semibold))
                     .foregroundStyle(.textSecondary)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, DSSpacing.sm)
                     .padding(.vertical, 3)
                     .background(Color.surface)
                     .clipShape(Capsule())
@@ -97,31 +97,31 @@ struct BreakdownRow: View {
     let source: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DSSpacing.sm) {
             ZStack {
                 Circle()
                     .fill(iconColor.opacity(0.12))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 40, height: 40)
                 Image(systemName: icon)
                     .font(.caption)
                     .foregroundStyle(iconColor)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.dsCaption)
+                    .font(.dsFootnote.weight(.medium))
                     .foregroundStyle(.textPrimary)
                 Text(source)
-                    .font(.caption2)
+                    .font(.dsCaption2)
                     .foregroundStyle(.textSecondary)
             }
             Spacer()
             Text(value)
-                .font(.dsCaption.weight(.bold))
+                .font(.dsFootnote.weight(.bold))
                 .foregroundStyle(.textPrimary)
         }
-        .padding(10)
+        .padding(DSSpacing.sm + 2)
         .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: DSRadius.sm))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label): \(value). \(source)")
     }

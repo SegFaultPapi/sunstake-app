@@ -119,13 +119,13 @@ struct PurchaseFlowView: View {
             }
 
             // Amount display
-            VStack(spacing: 4) {
+            VStack(spacing: DSSpacing.sm) {
                 Text("$\(Int(amount)) USDC")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.dsDisplay)
                     .foregroundStyle(.chain500)
                     .contentTransition(.numericText())
                 Text("\(tokens) fracciones del proyecto")
-                    .font(.dsCaption)
+                    .font(.dsSubhead)
                     .foregroundStyle(.textSecondary)
             }
             .frame(maxWidth: .infinity)

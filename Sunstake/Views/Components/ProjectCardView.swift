@@ -4,10 +4,10 @@ struct ProjectCardView: View {
     let project: SolarProject
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: DSSpacing.md) {
             // Header
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: DSSpacing.xs) {
                     HStack(spacing: 6) {
                         Image(systemName: "house.fill")
                             .font(.caption)
@@ -16,7 +16,7 @@ struct ProjectCardView: View {
                             .font(.dsHeading)
                     }
                     Text("Beneficiario: \(project.beneficiario)")
-                        .font(.caption2)
+                        .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }
                 Spacer()
@@ -107,18 +107,18 @@ struct CardMetric: View {
     let label: String
 
     var body: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: DSSpacing.xs) {
             Image(systemName: icon)
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(iconColor)
             Text(value)
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.dsCaption2.weight(.bold))
                 .foregroundStyle(.textPrimary)
             Text(label)
-                .font(.system(size: 9))
+                .font(.dsCaption2)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(.vertical, DSSpacing.sm)
     }
 }

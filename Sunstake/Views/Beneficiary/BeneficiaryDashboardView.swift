@@ -39,17 +39,18 @@ struct BeneficiaryDashboardView: View {
                     }
 
                     // Next payment card
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: DSSpacing.sm) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: DSSpacing.xs) {
                                 Text("Próximo pago")
-                                    .font(.dsCaption)
+                                    .font(.dsSubhead)
                                     .foregroundStyle(.textSecondary)
                                 Text("15 de junio · $\(Int(appState.quotaResult?.cuotaMXN ?? 850)) MXN")
                                     .font(.dsHeading)
                             }
                             Spacer()
                             Image(systemName: "clock.fill")
+                                .font(.title3)
                                 .foregroundStyle(.secondary500)
                         }
 

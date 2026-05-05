@@ -32,20 +32,20 @@ struct OwnershipRingView: View {
                     .animation(.easeOut(duration: 1.2), value: animatedPct)
 
                 // Center content
-                VStack(spacing: 4) {
+                VStack(spacing: DSSpacing.xs) {
                     Text("\(Int(percentage * 100))%")
-                        .font(.system(size: 38, weight: .bold, design: .rounded))
+                        .font(.dsNumber)
                         .foregroundStyle(.textPrimary)
                         .contentTransition(.numericText())
                     Text("tuyo")
-                        .font(.dsCaption)
+                        .font(.dsFootnote)
                         .foregroundStyle(.textSecondary)
                 }
             }
             .accessibilityLabel("Propiedad del panel: \(Int(percentage * 100))%. \(mesesPagados) de \(plazoTotal) meses pagados.")
 
             Text("\(mesesPagados) de \(plazoTotal) meses pagados")
-                .font(.dsCaption)
+                .font(.dsFootnote)
                 .foregroundStyle(.textSecondary)
         }
         .frame(maxWidth: .infinity)
