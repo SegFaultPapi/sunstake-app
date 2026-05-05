@@ -112,23 +112,23 @@ struct AccountView: View {
                             .lineLimit(1)
                     }
                     HStack {
-                        Label("Dirección wallet", systemImage: "wallet.pass")
+                        Label("ID de tu cuenta", systemImage: "wallet.pass")
                         Spacer()
                         Text(shortAddress(appState.walletAddress))
                             .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                     }
                     HStack {
-                        Label("Proveedor wallet", systemImage: "shippingbox")
+                        Label("Tipo de cuenta", systemImage: "shippingbox")
                         Spacer()
                         Text(appState.walletProviderLabel.isEmpty ? "—" : appState.walletProviderLabel)
                             .font(.dsCaption)
                             .foregroundStyle(.textSecondary)
                     }
                     HStack {
-                        Label("Balance USDC", systemImage: "dollarsign.circle")
+                        Label("Saldo disponible", systemImage: "dollarsign.circle")
                         Spacer()
-                        Text(String(format: "$%.2f USDC", appState.walletBalanceUSDC))
+                        Text(String(format: "$%.2f USD", appState.walletBalanceUSDC))
                             .font(.dsCaption.weight(.semibold))
                             .foregroundStyle(.chain500)
                     }

@@ -218,11 +218,11 @@ struct ContractInfoView: View {
                             UIApplication.shared.open(url)
                         }
                     } label: {
-                        Label("Basescan", systemImage: "arrow.up.right.square")
+                        Label("Ver detalles", systemImage: "arrow.up.right.square")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.chain500)
                     }
-                    .accessibilityLabel("Ver contrato en Basescan")
+                    .accessibilityLabel("Ver detalles del registro")
                 }
             }
         }

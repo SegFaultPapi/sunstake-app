@@ -93,7 +93,7 @@ struct BeneficiaryDashboardView: View {
                     // Contract transparency — HCAI verifiable trust
                     ContractInfoView(
                         address: "0x7f3a4b2c9d1e8f5a0c3b6d9e2f1a4b7c0d3e6f9a",
-                        network: "Base Sepolia",
+                        network: "Modo de prueba",
                         explorerURL: "https://sepolia.basescan.org"
                     )
 
@@ -116,7 +116,7 @@ struct BeneficiaryDashboardView: View {
             .sheet(isPresented: $showPaymentConfirm) {
                 BiometricConfirmationSheet(
                     title: "Pagar cuota de junio",
-                    subtitle: "$\(Int(appState.quotaResult?.cuotaMXN ?? 850)) MXN · $\(String(format: "%.2f", appState.quotaResult?.cuotaUSDC ?? 48.57)) USDC + gas fee ~$0.01 USD"
+                    subtitle: "$\(Int(appState.quotaResult?.cuotaMXN ?? 850)) MXN · $\(String(format: "%.2f", appState.quotaResult?.cuotaUSDC ?? 48.57)) USD + costo de procesamiento ~$0.01 USD"
                 ) {
                     showPaymentConfirm = false
                     showPaymentLoader = true
@@ -128,7 +128,7 @@ struct BeneficiaryDashboardView: View {
             .navigationDestination(isPresented: $showPaymentLoader) {
                 TransactionLoaderView(
                     successTitle: "¡Pago confirmado!",
-                    successSubtitle: "Tu pago quedó registrado en blockchain. Tu porcentaje de propiedad aumentó.",
+                    successSubtitle: "Tu pago quedó registrado en la red de pagos. Tu porcentaje de propiedad aumentó.",
                     destination: { BeneficiaryDashboardView() }
                 )
             }
@@ -187,7 +187,7 @@ struct PaymentRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(payment.fecha, style: .date)
                         .font(.dsCaption.weight(.medium))
-                    Text("$\(String(format: "%.2f", payment.montoUSDC)) USDC")
+                    Text("$\(String(format: "%.2f", payment.montoUSDC)) USD")
                         .font(.caption2)
                         .foregroundStyle(.textSecondary)
                 }
@@ -204,7 +204,7 @@ struct PaymentRow: View {
                             .font(.caption)
                             .foregroundStyle(.chain500)
                     }
-                    .accessibilityLabel("Ver transacción en Basescan")
+                    .accessibilityLabel("Ver detalles de la transacción")
                 }
             }
             CopyableHashView(label: "Código de verificación", hash: payment.txHash)

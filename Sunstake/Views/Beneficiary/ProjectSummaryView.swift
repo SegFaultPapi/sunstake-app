@@ -14,7 +14,7 @@ struct ProjectSummaryView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Revisa tu proyecto")
                         .font(.dsTitle)
-                    Text("Este es el contrato que se registrará en blockchain. Revísalo antes de confirmar con Face ID.")
+                    Text("Este es el registro que se guardará en la red de pagos verificable. Revísalo antes de confirmar con Face ID.")
                         .font(.dsCaption)
                         .foregroundStyle(.textSecondary)
                 }
@@ -40,13 +40,13 @@ struct ProjectSummaryView: View {
 
                 // Blockchain info
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Contrato en blockchain", systemImage: "link.circle.fill")
+                    Label("Registro del proyecto", systemImage: "link.circle.fill")
                         .font(.dsHeading)
                         .foregroundStyle(.chain500)
                     VStack(spacing: 8) {
                         BlockchainInfoRow(label: "Red", value: "Base Sepolia (modo de prueba)")
-                        BlockchainInfoRow(label: "Estándar de token", value: "ERC-1155 fraccionado")
-                        BlockchainInfoRow(label: "Moneda", value: "USDC (dólares digitales estables)")
+                        BlockchainInfoRow(label: "Tipo de participación", value: "Fraccionada")
+                        BlockchainInfoRow(label: "Moneda", value: "USD (dólares digitales)")
                     }
                     Text("Al publicar, el contrato quedará registrado públicamente y los inversores podrán financiarlo.")
                         .font(.caption2)
@@ -94,7 +94,7 @@ struct ProjectSummaryView: View {
         .sheet(isPresented: $showBiometric) {
             BiometricConfirmationSheet(
                 title: "Publicar proyecto",
-                subtitle: "Cuota $\(Int(result.cuotaMXN)) MXN/mes · \(result.plazoMeses) meses · Base Sepolia"
+                subtitle: "Cuota $\(Int(result.cuotaMXN)) MXN/mes · \(result.plazoMeses) meses · Modo de prueba"
             ) {
                 showBiometric = false
                 showLoader = true
