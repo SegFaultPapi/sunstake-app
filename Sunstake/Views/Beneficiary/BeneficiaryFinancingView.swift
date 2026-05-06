@@ -6,26 +6,125 @@ import SwiftUI
 struct BeneficiaryFinancingView: View {
     @Environment(AppState.self) var appState
 
-    private var project: SolarProject? { appState.activeProject }
-
     var body: some View {
         NavigationStack {
-            if let project {
-                FinancingDashboardContent(project: project)
-                    .navigationTitle("Mi proyecto")
-                    .navigationBarTitleDisplayMode(.inline)
-            } else {
-                FinancingEmptyState()
-                    .navigationTitle("Mi proyecto")
-                    .navigationBarTitleDisplayMode(.inline)
+            Group {
+                if appState.activeProjects.isEmpty {
+                    FinancingEmptyState()
+                } else if appState.activeProjects.count == 1, let project = appState.activeProjects.first {
+                    FinancingDashboardContent(project: project)
+                } else {
+                    MultiProjectFinancingView(projects: appState.activeProjects)
+                }
             }
+            .navigationTitle("Mi proyecto")
+            .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+// MARK: - Multi-project compact list
+
+private struct MultiProjectFinancingView: View {
+    let projects: [SolarProject]
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 14) {
+                HStack {
+                    Text("\(projects.count) paneles activos")
+                        .font(.dsHeading)
+                    Spacer()
+                    Label("Máx. 3", systemImage: "info.circle")
+                        .font(.dsCaption2)
+                        .foregroundStyle(.textSecondary)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+
+                ForEach(Array(projects.enumerated()), id: \.element.id) { idx, project in
+                    NavigationLink(destination: FinancingDashboardContent(project: project)) {
+                        CompactProjectCard(index: idx + 1, project: project)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
+                }
+            }
+            .padding(.bottom, 24)
+        }
+    }
+}
+
+private struct CompactProjectCard: View {
+    let index: Int
+    let project: SolarProject
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 14) {
+                // Index badge
+                ZStack {
+                    Circle()
+                        .fill(Color.secondary500.opacity(0.12))
+                        .frame(width: 40, height: 40)
+                    Text("\(index)")
+                        .font(.dsHeading)
+                        .foregroundStyle(.secondary500)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text("Panel \(index)")
+                            .font(.dsCaption.weight(.semibold))
+                        FundingStatusBadge(status: project.status)
+                    }
+                    Text("\(project.ciudad), \(project.estado)")
+                        .font(.dsCaption2)
+                        .foregroundStyle(.textSecondary)
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text("\(Int(project.porcentajeFinanciado * 100))%")
+                        .font(.dsCaption.weight(.bold))
+                        .foregroundStyle(.chain500)
+                    Text("financiado")
+                        .font(.dsCaption2)
+                        .foregroundStyle(.textSecondary)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.textSecondary)
+            }
+            .padding(16)
+
+            // Mini funding bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.gray.opacity(0.12))
+                        .frame(height: 4)
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.chain500)
+                        .frame(width: geo.size.width * project.porcentajeFinanciado, height: 4)
+                }
+            }
+            .frame(height: 4)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 14)
+        }
+        .background(Color.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+        .accessibilityLabel("Panel \(index) en \(project.ciudad), \(project.estado). \(Int(project.porcentajeFinanciado * 100))% financiado.")
     }
 }
 
 // MARK: - Dashboard con proyecto activo
 
-private struct FinancingDashboardContent: View {
+struct FinancingDashboardContent: View {
     let project: SolarProject
 
     // Aun no tenemos un indexer onchain que liste compradores por contrato,
@@ -228,7 +327,7 @@ private struct FinancingDashboardContent: View {
 
 // MARK: - Estado vacío (sin proyecto publicado)
 
-private struct FinancingEmptyState: View {
+struct FinancingEmptyState: View {
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
@@ -376,7 +475,7 @@ private struct FundingRingCard: View {
     }
 }
 
-private struct FundingStatusBadge: View {
+struct FundingStatusBadge: View {
     let status: ProjectStatus
 
     var body: some View {

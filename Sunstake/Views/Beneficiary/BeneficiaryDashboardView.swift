@@ -4,13 +4,23 @@ struct BeneficiaryDashboardView: View {
     @Environment(AppState.self) var appState
     @State private var showPaymentConfirm = false
     @State private var showPaymentLoader = false
+    @State private var showAddPanel = false
 
-    private var project: SolarProject? { appState.activeProject }
+    private var project: SolarProject? { appState.selectedProject }
+    private var projects: [SolarProject] { appState.activeProjects }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
+
+                    // Project selector (only when > 1 panel)
+                    if projects.count > 1 {
+                        ProjectSelectorStrip(
+                            projects: projects,
+                            selectedIndex: Bindable(appState).selectedProjectIndex
+                        )
+                    }
 
                     // Ownership ring
                     VStack(spacing: 16) {
@@ -20,7 +30,6 @@ struct BeneficiaryDashboardView: View {
                             plazoTotal: project?.plazoTotalMeses ?? (appState.quotaResult?.plazoMeses ?? 36)
                         )
 
-                        // Key stats row
                         HStack(spacing: 0) {
                             StatChip(
                                 icon: "calendar",
@@ -76,9 +85,27 @@ struct BeneficiaryDashboardView: View {
 
                     // Panel info
                     VStack(alignment: .leading, spacing: 12) {
-                        Label("Tu panel solar", systemImage: "sun.max.fill")
-                            .font(.dsHeading)
-                            .foregroundStyle(.secondary500)
+                        HStack {
+                            Label("Tu panel solar", systemImage: "sun.max.fill")
+                                .font(.dsHeading)
+                                .foregroundStyle(.secondary500)
+                            Spacer()
+                            // Add panel CTA (max 3)
+                            if projects.count < 3 {
+                                Button {
+                                    showAddPanel = true
+                                } label: {
+                                    Label("Añadir panel", systemImage: "plus.circle.fill")
+                                        .font(.dsCaption.weight(.semibold))
+                                        .foregroundStyle(.secondary500)
+                                }
+                                .accessibilityLabel("Añadir otro panel solar. Tienes \(projects.count) de 3 paneles permitidos.")
+                            } else {
+                                Text("Máx. 3 paneles")
+                                    .font(.dsCaption2)
+                                    .foregroundStyle(.textSecondary)
+                            }
+                        }
 
                         HStack(spacing: 16) {
                             PanelStat(
@@ -128,9 +155,7 @@ struct BeneficiaryDashboardView: View {
             }
             .changeRoleButton()
             .navigationTitle("Mi panel solar")
-            .refreshable {
-                // In real app: refresh on-chain data
-            }
+            .refreshable { }
             .sheet(isPresented: $showPaymentConfirm) {
                 BiometricConfirmationSheet(
                     title: "Pagar cuota de junio",
@@ -138,10 +163,11 @@ struct BeneficiaryDashboardView: View {
                 ) {
                     showPaymentConfirm = false
                     showPaymentLoader = true
-                    Task {
-                        await appState.payMonthlyQuota()
-                    }
+                    Task { await appState.payMonthlyQuota() }
                 }
+            }
+            .sheet(isPresented: $showAddPanel) {
+                AddPanelSheet()
             }
             .navigationDestination(isPresented: $showPaymentLoader) {
                 TransactionLoaderView(
@@ -151,6 +177,62 @@ struct BeneficiaryDashboardView: View {
                 )
             }
         }
+    }
+}
+
+// MARK: - Project selector strip
+
+private struct ProjectSelectorStrip: View {
+    let projects: [SolarProject]
+    @Binding var selectedIndex: Int
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(Array(projects.enumerated()), id: \.offset) { idx, project in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedIndex = idx }
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Panel \(idx + 1)")
+                                .font(.dsCaption.weight(.semibold))
+                                .foregroundStyle(selectedIndex == idx ? .white : .textPrimary)
+                            Text("\(project.ciudad)")
+                                .font(.dsCaption2)
+                                .foregroundStyle(selectedIndex == idx ? .white.opacity(0.8) : .textSecondary)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(selectedIndex == idx ? Color.secondary500 : Color.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .accessibilityLabel("Panel \(idx + 1) en \(project.ciudad)\(selectedIndex == idx ? ", seleccionado" : "")")
+                }
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+        }
+    }
+}
+
+// MARK: - Add panel sheet
+
+private struct AddPanelSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        QuotaCalculatorView()
+            .safeAreaInset(edge: .top, spacing: 0) {
+                HStack {
+                    Spacer()
+                    Button("Cancelar") { dismiss() }
+                        .font(.dsCaption.weight(.semibold))
+                        .foregroundStyle(.secondary500)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                }
+                .background(Color(UIColor.systemBackground))
+            }
     }
 }
 

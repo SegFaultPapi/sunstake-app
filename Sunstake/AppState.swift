@@ -40,9 +40,15 @@ final class AppState {
 
     // Beneficiary state
     var quotaResult: QuotaResult? = nil
-    var activeProject: SolarProject? = nil
+    var activeProjects: [SolarProject] = []
+    var selectedProjectIndex: Int = 0
     var paymentHistory: [Payment] = []
     var ownershipPct: Double = 0
+
+    var activeProject: SolarProject? { activeProjects.first }
+    var selectedProject: SolarProject? {
+        activeProjects.indices.contains(selectedProjectIndex) ? activeProjects[selectedProjectIndex] : activeProjects.first
+    }
 
     // Investor state
     // Catalogo del explorador (mocks si la factory esta vacia o falla el RPC).
@@ -105,6 +111,10 @@ final class AppState {
     func publishProject() async {
         transactionState = .creatingContract
         do {
+            guard activeProjects.count < 3 else {
+                transactionState = .error(message: "Ya tienes 3 paneles activos, que es el máximo permitido.")
+                return
+            }
             guard let result = quotaResult else {
                 transactionState = .error(message: "No hay una cuota calculada. Vuelve a calcular tu cuota.")
                 return
@@ -126,7 +136,8 @@ final class AppState {
                 signer: evmSigner()
             )
             transactionState = .success(txHash: blockchainResult.txHash)
-            activeProject = makeFreshProject(blockchainResult: blockchainResult)
+            activeProjects.append(makeFreshProject(blockchainResult: blockchainResult))
+            selectedProjectIndex = activeProjects.count - 1
             await refreshProjectCatalogFromChain()
             await showToast(StatusToast(
                 kind: .success,
@@ -264,7 +275,7 @@ final class AppState {
     func payMonthlyQuota() async {
         transactionState = .processing
         do {
-            guard let splitter = activeProject?.paymentSplitterAddress, !splitter.isEmpty else {
+            guard let splitter = selectedProject?.paymentSplitterAddress, !splitter.isEmpty else {
                 transactionState =
                     .error(message: "No hay un proyecto con contrato registrado para pagos. Primero debes publicar tu proyecto desde la app.")
                 return
@@ -384,7 +395,9 @@ final class AppState {
             guard let project = try await blockchainService.fetchActiveProjectForBeneficiary(walletAddress: walletAddress) else {
                 return
             }
-            activeProject = project
+            if !activeProjects.contains(where: { $0.id == project.id }) {
+                activeProjects.append(project)
+            }
             let plazo = project.plazoTotalMeses
             let pagados = project.mesesPagados
             ownershipPct = plazo > 0 ? min(1.0, Double(pagados) / Double(plazo)) : 0
@@ -466,7 +479,8 @@ final class AppState {
         investments = []
         investedProjects = []
         investorRestoreFailed = false
-        activeProject = nil
+        activeProjects = []
+        selectedProjectIndex = 0
         ownershipPct = 0
         quotaResult = nil
         projects = SolarProject.mockProjects

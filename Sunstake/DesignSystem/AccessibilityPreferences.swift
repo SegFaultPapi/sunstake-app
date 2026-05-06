@@ -85,18 +85,10 @@ struct ColorBlindModifier: ViewModifier {
     let mode: AccessibilityPreferences.ColorBlindMode
 
     func body(content: Content) -> some View {
-        switch mode {
-        case .none:
-            content
-        case .monochromacy:
-            content.grayscale(1.0)
-        case .protanopia:
-            // Shift hue to simulate red-blind: rotate -90°
-            content.hueRotation(.degrees(-90)).saturation(0.6)
-        case .deuteranopia:
-            // Shift hue to simulate green-blind: rotate 60°
-            content.hueRotation(.degrees(60)).saturation(0.55)
-        }
+        content
+            .grayscale(mode == .monochromacy ? 1.0 : 0.0)
+            .hueRotation(.degrees(mode == .protanopia ? -90 : mode == .deuteranopia ? 60 : 0))
+            .saturation(mode == .protanopia ? 0.6 : mode == .deuteranopia ? 0.55 : 1.0)
     }
 }
 

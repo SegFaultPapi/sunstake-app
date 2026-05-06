@@ -68,7 +68,7 @@ struct BeneficiaryHomeView: View {
     @Environment(AppState.self) var appState
 
     var body: some View {
-        if appState.activeProject != nil {
+        if !appState.activeProjects.isEmpty {
             BeneficiaryDashboardView()
         } else {
             QuotaCalculatorView()
