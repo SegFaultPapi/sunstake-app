@@ -7,6 +7,8 @@ struct QuotaResultView: View {
     @State private var showSummary = false
     @State private var adjustedResult: QuotaResult
     @State private var showBreakdown = false
+    @State private var aiExplanation: String? = nil
+    @State private var isGeneratingExplanation = false
 
     init(result: QuotaResult) {
         self.result = result
@@ -57,19 +59,15 @@ struct QuotaResultView: View {
                     }
                 }
 
-                // HCAI: Natural language explanation (Foundation Models placeholder)
-                VStack(alignment: .leading, spacing: 8) {
-                    Label("Explicación en lenguaje natural", systemImage: "sparkles")
-                        .font(.dsCaption.weight(.semibold))
-                        .foregroundStyle(.chain500)
-                    Text(adjustedResult.explicacion)
-                        .font(.dsBody)
-                        .foregroundStyle(.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
+                // HCAI: Natural language explanation — Apple Intelligence on-device
+                AIExplanationCard(
+                    staticFallback: adjustedResult.explicacion,
+                    aiText: aiExplanation,
+                    isGenerating: isGeneratingExplanation
+                )
+                .task(id: adjustedResult.plazoMeses) {
+                    await generateExplanation(for: adjustedResult)
                 }
-                .padding(16)
-                .background(Color.chain500.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 // HCAI: Override — user control, always visible, never blockable
                 VStack(alignment: .leading, spacing: 12) {
@@ -188,5 +186,191 @@ struct QuotaResultView: View {
         let base = result.cuotaMXN * Double(result.plazoMeses)
         let factor = 1.0 + (36.0 / Double(term.rawValue) - 1) * 0.15
         return (base / Double(term.rawValue) * factor).rounded()
+    }
+
+    private func generateExplanation(for r: QuotaResult) async {
+        guard #available(iOS 18, *) else { return }
+        isGeneratingExplanation = true
+        aiExplanation = nil
+        let input = QuotaExplanationInput(
+            cuotaMXN: r.cuotaMXN,
+            consumoKWh: r.consumoKWh,
+            horasSol: r.horasSol,
+            tamanoPanel: r.tamanoPanel,
+            coberturaPct: r.coberturaPct,
+            plazoMeses: r.plazoMeses,
+            ubicacion: r.ubicacion,
+            rendimientoPct: r.rendimientoInversorPct,
+            confianza: r.confianza.rawValue
+        )
+        aiExplanation = await FoundationModelsService.generateQuotaExplanation(for: input)
+        isGeneratingExplanation = false
+    }
+}
+
+// MARK: - AI explanation card
+
+private struct AIExplanationCard: View {
+    let staticFallback: String
+    let aiText: String?
+    let isGenerating: Bool
+
+    private var displayText: String { aiText ?? staticFallback }
+    private var isAIGenerated: Bool { aiText != nil }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles")
+                    .font(.dsCaption.weight(.semibold))
+                    .foregroundStyle(.chain500)
+                Text(isAIGenerated ? "Apple Intelligence" : "Explicación del cálculo")
+                    .font(.dsCaption.weight(.semibold))
+                    .foregroundStyle(.chain500)
+                Spacer()
+                if isGenerating {
+                    HStack(spacing: 4) {
+                        ProgressView()
+                            .controlSize(.mini)
+                            .tint(.chain500)
+                        Text("Generando…")
+                            .font(.dsCaption2)
+                            .foregroundStyle(.textSecondary)
+                    }
+                } else if isAIGenerated {
+                    Label("En tu dispositivo", systemImage: "lock.shield.fill")
+                        .font(.dsCaption2)
+                        .foregroundStyle(.success)
+                        .transition(.opacity)
+                }
+            }
+
+            if isGenerating {
+                ShimmerLines()
+            } else if isAIGenerated, let text = aiText {
+                TypewriterText(fullText: text)
+                    .font(.dsBody)
+                    .foregroundStyle(.textPrimary)
+            } else {
+                Text(staticFallback)
+                    .font(.dsBody)
+                    .foregroundStyle(.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            // HCAI: always show data source for interpretability
+            HStack(spacing: 4) {
+                Image(systemName: "info.circle")
+                    .font(.dsCaption2)
+                Text("Cálculo basado en datos reales de NASA POWER y tu consumo.")
+                    .font(.dsCaption2)
+            }
+            .foregroundStyle(.textSecondary)
+        }
+        .padding(16)
+        .background(Color.chain500.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(isGenerating ? "Generando explicación con Apple Intelligence" : displayText)
+    }
+}
+
+// MARK: - Typewriter text animation
+
+private struct TypewriterText: View {
+    let fullText: String
+    // ~55 ms por carácter → ritmo pausado de escritura humana
+    var charDelay: Double = 0.055
+
+    @State private var visibleCount: Int = 0
+    @State private var cursorVisible: Bool = true
+    @State private var typingDone: Bool = false
+
+    private var displayed: String { String(fullText.prefix(visibleCount)) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Texto animado — el invisible reserva el alto final para evitar saltos
+            ZStack(alignment: .topLeading) {
+                Text(fullText)
+                    .opacity(0)
+                HStack(alignment: .top, spacing: 0) {
+                    Text(displayed)
+                    if !typingDone {
+                        Text("|")
+                            .opacity(cursorVisible ? 1 : 0)
+                            .animation(.easeInOut(duration: 0.45).repeatForever(), value: cursorVisible)
+                    }
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+
+            // Badge "Generado con Apple Intelligence" — aparece al terminar de escribir
+            if typingDone {
+                HStack(spacing: 5) {
+                    Image(systemName: "apple.intelligence")
+                        .font(.dsCaption2)
+                    Text("Generado con Apple Intelligence")
+                        .font(.dsCaption2.weight(.medium))
+                }
+                .foregroundStyle(.chain500)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
+        .onAppear { startTyping() }
+        .onChange(of: fullText) { startTyping() }
+    }
+
+    private func startTyping() {
+        visibleCount = 0
+        typingDone = false
+        cursorVisible = true
+        let total = fullText.count
+        guard total > 0 else { return }
+
+        Task {
+            for i in 1...total {
+                // Pequeña variación aleatoria para simular ritmo humano real
+                let jitter = Double.random(in: 0.8...1.4)
+                try? await Task.sleep(nanoseconds: UInt64(charDelay * jitter * 1_000_000_000))
+                await MainActor.run { visibleCount = i }
+            }
+            await MainActor.run {
+                withAnimation(.easeIn(duration: 0.3)) {
+                    typingDone = true
+                    cursorVisible = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Loading shimmer placeholder
+
+private struct ShimmerLines: View {
+    @State private var shimmer = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach([0.9, 1.0, 0.75] as [CGFloat], id: \.self) { fraction in
+                GeometryReader { geo in
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.gray.opacity(0.15), Color.gray.opacity(0.3), Color.gray.opacity(0.15)],
+                                startPoint: shimmer ? .trailing : .leading,
+                                endPoint: shimmer ? .leading : .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * fraction, height: 14)
+                }
+                .frame(height: 14)
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: false)) {
+                shimmer = true
+            }
+        }
     }
 }
