@@ -31,11 +31,16 @@ private struct MultiProjectFinancingView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
-                HStack {
-                    Text("\(projects.count) paneles activos")
-                        .font(.dsHeading)
-                    Spacer()
-                    Label("Máx. 3", systemImage: "info.circle")
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("\(projects.count) paneles activos")
+                            .font(.dsHeading)
+                        Spacer()
+                        Label("Máx. 3 paneles", systemImage: "info.circle")
+                            .font(.dsCaption2)
+                            .foregroundStyle(.textSecondary)
+                    }
+                    Text("Toca un panel para ver su estado de financiamiento. Añade paneles desde la pestaña \"Mi Panel\".")
                         .font(.dsCaption2)
                         .foregroundStyle(.textSecondary)
                 }

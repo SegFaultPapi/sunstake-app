@@ -83,29 +83,49 @@ struct BeneficiaryDashboardView: View {
                     .background(Color.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
-                    // Panel info
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Label("Tu panel solar", systemImage: "sun.max.fill")
-                                .font(.dsHeading)
-                                .foregroundStyle(.secondary500)
-                            Spacer()
-                            // Add panel CTA (max 3)
-                            if projects.count < 3 {
-                                Button {
-                                    showAddPanel = true
-                                } label: {
-                                    Label("Añadir panel", systemImage: "plus.circle.fill")
-                                        .font(.dsCaption.weight(.semibold))
+                    // Add panel CTA — shown prominently when < 3 panels
+                    if projects.count < 3 {
+                        Button {
+                            showAddPanel = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.secondary500.opacity(0.12))
+                                        .frame(width: 40, height: 40)
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.title3)
                                         .foregroundStyle(.secondary500)
                                 }
-                                .accessibilityLabel("Añadir otro panel solar. Tienes \(projects.count) de 3 paneles permitidos.")
-                            } else {
-                                Text("Máx. 3 paneles")
-                                    .font(.dsCaption2)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Añadir otro panel solar")
+                                        .font(.dsCaption.weight(.semibold))
+                                        .foregroundStyle(.textPrimary)
+                                    Text("\(projects.count) de 3 paneles activos")
+                                        .font(.dsCaption2)
+                                        .foregroundStyle(.textSecondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.semibold))
                                     .foregroundStyle(.textSecondary)
                             }
+                            .padding(14)
+                            .background(Color.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color.secondary500.opacity(0.3), lineWidth: 1)
+                            )
                         }
+                        .accessibilityLabel("Añadir otro panel solar. Tienes \(projects.count) de 3 paneles permitidos.")
+                    }
+
+                    // Panel info
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Tu panel solar", systemImage: "sun.max.fill")
+                            .font(.dsHeading)
+                            .foregroundStyle(.secondary500)
 
                         HStack(spacing: 16) {
                             PanelStat(
